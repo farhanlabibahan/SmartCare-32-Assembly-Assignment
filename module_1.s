@@ -1,32 +1,28 @@
-        AREA myData, DATA, READWRITE
-        ALIGN 4
 
-; Patient names 
-patient1_name   DCB "Dipa Biswas",0
-                ALIGN 4          ; Align to word boundary
-patient2_name   DCB "Shahriar Samrat",0
-                ALIGN 4          ; Align to word boundary
-
-; Medicine lists
-med_list1       DCD 0x12345678, 0x9ABCDEF0, 0
-med_list2       DCD 0x11111111, 0x22222222, 0x33333333, 0
 
         AREA PatientData, DATA, READWRITE
-        ALIGN 4
+        
 
 ; Space for 2 patient structures (24 bytes each)
 patient_struct  SPACE 48        ; Reserve space for 2 patients (24 bytes each)
 
         AREA |.text|, CODE, READONLY
         EXPORT one
+
+        IMPORT patient1_name
+        IMPORT patient2_name
+        IMPORT patient3_name
+        IMPORT med_list1
+        IMPORT med_list2
+        IMPORT med_list3
+        IMPORT patient_id1
+        IMPORT patient_id2
+        IMPORT patient_id3
         
 one
-    ; Initialize patient 1 at address 0x20000000
-    LDR R0, =0x20000000      
-    BL init_patient1
     
-    ; Initialize patient 2 at address 0x20000018 (24 bytes apart)
-    LDR R0, =0x20000018      
+   
+    BL init_patient1    
     BL init_patient2
 
 stop
@@ -35,7 +31,7 @@ stop
 
 init_patient1
     ; Store Patient ID
-    LDR R1, =0x00001001      
+    LDR R1, =patient_id1      
     STR R1, [R0]             ; Offset 0x00
     
     ; Store Name pointer
@@ -66,7 +62,7 @@ init_patient1
 
 init_patient2
     ; Store Patient ID
-    LDR R1, =0x00001002      
+    LDR R1, =patient_id2      
     STR R1, [R0]             ; Offset 0x00
     
     ; Store Name pointer

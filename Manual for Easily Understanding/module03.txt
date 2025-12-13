@@ -1,0 +1,71 @@
+Memory Address     Contents               Description
+─────────────────────────────────────────────────────────────────
+0x00000000 - 0x0000003F  CODE SECTION     |.text| area (read-only)
+                ┌───────── main:          Entry point
+                ├───────── check_vitals:  Vital checking routine
+                ├───────── check_hr:      Heart rate checker
+                ├───────── check_sbp:     Blood pressure checker
+                ├───────── check_o2:      Oxygen saturation checker
+                └───────── create_alert_record: Alert creation
+                            
+0x20000000       DATA SECTION             myData area (read-write)
+                (Assuming typical ARM memory map where
+                 DATA starts at 0x20000000)
+                
+0x20000000       HR_HIGH_THRESHOLD  = 120  EQU directive (no memory)
+0x20000000       O2_LOW_THRESHOLD   = 92   EQU directive (no memory)
+0x20000000       SBP_HIGH_THRESHOLD = 160  EQU directive (no memory)
+0x20000000       SBP_LOW_THRESHOLD  = 90   EQU directive (no memory)
+
+0x20000000       hr_alert_flag      DCB 0  1 byte: HR alert status
+0x20000001       o2_alert_flag      DCB 0  1 byte: O2 alert status
+0x20000002       sbp_alert_flag     DCB 0  1 byte: SBP alert status
+0x20000003       (padding byte)              For 4-byte alignment
+
+0x20000004       alert_buffer       SPACE 160  Alert storage:
+                ├─ 0x20000004 - 0x20000013    Alert 0 (16 bytes)
+                │   ├─ 0x20000004-07: Vital type (4 bytes)
+                │   ├─ 0x20000008-0B: Actual reading (4 bytes)
+                │   ├─ 0x2000000C-0F: Threshold value (4 bytes)
+                │   └─ 0x20000010-13: Timestamp (4 bytes)
+                ├─ 0x20000014 - 0x20000023    Alert 1 (16 bytes)
+                ├─ ... (8 more alerts)
+                └─ 0x200000A0 - 0x200000AF    Alert 9 (16 bytes)
+
+0x200000A4       alert_index        DCD 0      4 bytes: Current alert index (0-9)
+0x200000A8       timestamp_counter  DCD 0      4 bytes: Timestamp counter
+
+─────────────────────────────────────────────────────────────────
+TOTAL MEMORY USAGE:
+• CODE: ~100-200 bytes (depends on instructions)
+• DATA: 168 bytes total:
+  - 3 bytes for alert flags (with 1 byte padding)
+  - 160 bytes for alert buffer (10 × 16 bytes)
+  - 4 bytes for alert_index
+  - 4 bytes for timestamp_counter
+
+
+  Byte Offset   Content          Size   Description
+───────────   ───────          ────   ───────────
+0-3           Vital Type       4      • 1 = Heart Rate
+                                      • 2 = Blood Pressure  
+                                      • 3 = Oxygen
+4-7           Actual Reading   4      Current vital reading
+8-11          Threshold        4      Threshold that was crossed
+12-15         Timestamp        4      When alert occurred
+
+
+
+alert_buffer (starting at 0x20000004):
+┌──────────────────────────────────────┐
+│ Alert 0: Bytes 0x20000004-0x20000013 │
+│ Alert 1: Bytes 0x20000014-0x20000023 │
+│ Alert 2: Bytes 0x20000024-0x20000033 │
+│ Alert 3: Bytes 0x20000034-0x20000043 │
+│ Alert 4: Bytes 0x20000044-0x20000053 │
+│ Alert 5: Bytes 0x20000054-0x20000063 │
+│ Alert 6: Bytes 0x20000064-0x20000073 │
+│ Alert 7: Bytes 0x20000074-0x20000083 │
+│ Alert 8: Bytes 0x20000084-0x20000093 │
+│ Alert 9: Bytes 0x20000094-0x200000A3 │
+└──────────────────────────────────────┘

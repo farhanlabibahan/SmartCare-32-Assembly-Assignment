@@ -1,225 +1,194 @@
-AREA myData, DATA, READWRITE
-        ALIGN 4
-
-; Threshold values
-HR_HIGH_THRESHOLD  EQU 120
-O2_LOW_THRESHOLD   EQU 92  
-SBP_HIGH_THRESHOLD EQU 160
-SBP_LOW_THRESHOLD  EQU 90
-
-; Alert flags (1 byte each)
-hr_alert_flag      DCB 0
-o2_alert_flag      DCB 0
-sbp_alert_flag     DCB 0
-
-; Alert buffer: 10 alerts * 16 bytes each
-alert_buffer       SPACE 160
-
-; Current alert index
-alert_index        DCD 0
-
-; Timestamp counter
-timestamp_counter  DCD 0
-
         AREA |.text|, CODE, READONLY
-        EXPORT main
-        ENTRY
+        EXPORT three    
+        
+        IMPORT hr_alert_flag1, hr_alert_flag2, hr_alert_flag3
+        IMPORT o2_alert_flag1, o2_alert_flag2, o2_alert_flag3
+        IMPORT sbp_alert_flag1, sbp_alert_flag2, sbp_alert_flag3
+        IMPORT alert_buffer1, alert_buffer2, alert_buffer3
+        IMPORT alert_index1, alert_index2, alert_index3
+        IMPORT timestamp_counter
+        IMPORT patient_alert_count1, patient_alert_count2, patient_alert_count3
 
-main
+three
     ; Initialize
     MOV R0, #0
-    LDR R1, =alert_index
+    
+    ; Reset alert indexes
+    LDR R1, =alert_index1
+    STR R0, [R1]
+    LDR R1, =alert_index2
+    STR R0, [R1]
+    LDR R1, =alert_index3
     STR R0, [R1]
     
+    ; Reset alert counts
+    LDR R1, =patient_alert_count1
+    STR R0, [R1]
+    LDR R1, =patient_alert_count2
+    STR R0, [R1]
+    LDR R1, =patient_alert_count3
+    STR R0, [R1]
+    
+    ; Reset timestamp
     LDR R1, =timestamp_counter
     STR R0, [R1]
     
-    ; Reset alert flags
-    LDR R1, =hr_alert_flag
-    STRB R0, [R1]
-    LDR R1, =o2_alert_flag
-    STRB R0, [R1]
-    LDR R1, =sbp_alert_flag
-    STRB R0, [R1]
+    ; Test: Create alerts for different patients
     
-    ; Test Case 1: All vitals in danger
-    MOV R0, #130        ; HR = 130 (>120) -> ALERT
-    MOV R1, #170        ; SBP = 170 (>160) -> ALERT
-    MOV R2, #85         ; O2 = 85 (<92) -> ALERT
-    BL check_vitals
+    ; Patient 1: 2 alerts (HR and BP high)
+    MOV R0, #1          ; Patient 1
+    MOV R1, #130        ; HR high (>120)
+    MOV R2, #170        ; BP high (>160)
+    MOV R3, #95         ; O2 normal (>92)
+    BL check_patient_vitals
     
-    ; Test Case 2: Normal vitals
-    MOV R0, #110        ; HR = 110 (OK)
-    MOV R1, #120        ; SBP = 120 (OK)
-    MOV R2, #96         ; O2 = 96 (OK)
-    BL check_vitals
+    ; Patient 2: 1 alert (O2 low)
+    MOV R0, #2          ; Patient 2
+    MOV R1, #110        ; HR normal
+    MOV R2, #120        ; BP normal
+    MOV R3, #85         ; O2 low (<92)
+    BL check_patient_vitals
     
-stop
-    B stop
+    ; Patient 3: 3 alerts (all critical)
+    MOV R0, #3          ; Patient 3
+    MOV R1, #130        ; HR high
+    MOV R2, #170        ; BP high
+    MOV R3, #85         ; O2 low
+    BL check_patient_vitals
+    
+    ; Now:
+    ; patient_alert_count1 = 2
+    ; patient_alert_count2 = 1
+    ; patient_alert_count3 = 3
+    
+    ; Module 9 can sort these: Patient3 > Patient1 > Patient2
+    
+    B .
 
-; Check all vitals
-; R0 = Heart Rate
-; R1 = Systolic BP
-; R2 = O2 Saturation
-check_vitals
+; ============================================
+; Check vitals for specific patient
+; R0 = Patient number (1-3)
+; R1 = Heart Rate
+; R2 = Blood Pressure
+; R3 = Oxygen
+; ============================================
+check_patient_vitals
+    PUSH {R4, LR}
+    MOV R4, R0          ; Save patient number
+    
+    ; Check HR
+    MOV R0, R4
+    ; R1 already has HR value
+    BL check_hr_for_patient
+    
+    ; Check BP
+    MOV R0, R4
+    MOV R1, R2          ; Move BP to R1
+    BL check_bp_for_patient
+    
+    ; Check O2
+    MOV R0, R4
+    MOV R1, R3          ; Move O2 to R1
+    BL check_o2_for_patient
+    
+    POP {R4, PC}
+
+; ============================================
+; Check HR for patient
+; R0 = Patient number (1-3)
+; R1 = HR value
+; ============================================
+check_hr_for_patient
     PUSH {LR}
     
-    ; Check Heart Rate
-    BL check_hr
+    CMP R1, #120        ; HR_HIGH_THRESHOLD
+    BLE hr_normal
     
-    ; Check Blood Pressure
-    MOV R0, R1          ; Move SBP to R0 for function
-    BL check_sbp
+    ; HR is high - create alert
+    BL increment_alert_count
+    B hr_done_check
     
-    ; Check O2 Saturation
-    MOV R0, R2          ; Move O2 to R0 for function
-    BL check_o2
-    
+hr_normal
+    ; No alert needed
+hr_done_check
     POP {PC}
 
-; Check Heart Rate
-; R0 = Heart Rate value
-check_hr
-    PUSH {R1-R4, LR}
-    
-    ; Compare with threshold
-    CMP R0, #HR_HIGH_THRESHOLD
-    BLE hr_ok
-    
-    ; Set HR alert flag
-    MOV R1, #1
-    LDR R2, =hr_alert_flag
-    STRB R1, [R2]
-    
-    ; Create alert record
-    MOV R1, #1          ; Vital type: 1 = HR
-    MOV R2, R0          ; Actual reading
-    MOV R3, #HR_HIGH_THRESHOLD ; Threshold value
-    BL create_alert_record
-    
-    B hr_done
-    
-hr_ok
-    ; Clear HR alert flag
-    MOV R1, #0
-    LDR R2, =hr_alert_flag
-    STRB R1, [R2]
-    
-hr_done
-    POP {R1-R4, PC}
-
-; Check Systolic Blood Pressure
-; R0 = SBP value
-check_sbp
-    PUSH {R1-R4, LR}
+; ============================================
+; Check BP for patient  
+; R0 = Patient number (1-3)
+; R1 = BP value
+; ============================================
+check_bp_for_patient
+    PUSH {LR}
     
     ; Check if too high
-    CMP R0, #SBP_HIGH_THRESHOLD
-    BGT sbp_alert
+    CMP R1, #160        ; SBP_HIGH_THRESHOLD
+    BGT bp_alert
     
     ; Check if too low
-    CMP R0, #SBP_LOW_THRESHOLD
-    BGE sbp_ok
+    CMP R1, #90         ; SBP_LOW_THRESHOLD
+    BGE bp_normal
     
-sbp_alert
-    ; Set SBP alert flag
-    MOV R1, #1
-    LDR R2, =sbp_alert_flag
-    STRB R1, [R2]
+bp_alert
+    ; BP is abnormal - create alert
+    BL increment_alert_count
+    B bp_done_check
     
-    ; Create alert record
-    MOV R1, #2          ; Vital type: 2 = SBP
-    MOV R2, R0          ; Actual reading
-    
-    ; Determine which threshold was crossed
-    CMP R0, #SBP_HIGH_THRESHOLD
-    MOVGT R3, #SBP_HIGH_THRESHOLD  ; Too high
-    MOVLT R3, #SBP_LOW_THRESHOLD   ; Too low
-    
-    BL create_alert_record
-    B sbp_done
-    
-sbp_ok
-    ; Clear SBP alert flag
-    MOV R1, #0
-    LDR R2, =sbp_alert_flag
-    STRB R1, [R2]
-    
-sbp_done
-    POP {R1-R4, PC}
+bp_normal
+    ; No alert needed
+bp_done_check
+    POP {PC}
 
-; Check O2 Saturation
-; R0 = O2 value
-check_o2
-    PUSH {R1-R4, LR}
+; ============================================
+; Check O2 for patient
+; R0 = Patient number (1-3)
+; R1 = O2 value
+; ============================================
+check_o2_for_patient
+    PUSH {LR}
     
-    ; Compare with threshold
-    CMP R0, #O2_LOW_THRESHOLD
-    BGE o2_ok
+    CMP R1, #92         ; O2_LOW_THRESHOLD
+    BGE o2_normal
     
-    ; Set O2 alert flag
-    MOV R1, #1
-    LDR R2, =o2_alert_flag
-    STRB R1, [R2]
+    ; O2 is low - create alert
+    BL increment_alert_count
     
-    ; Create alert record
-    MOV R1, #3          ; Vital type: 3 = O2
-    MOV R2, R0          ; Actual reading
-    MOV R3, #O2_LOW_THRESHOLD ; Threshold value
-    BL create_alert_record
-    
-    B o2_done
-    
-o2_ok
-    ; Clear O2 alert flag
-    MOV R1, #0
-    LDR R2, =o2_alert_flag
-    STRB R1, [R2]
-    
-o2_done
-    POP {R1-R4, PC}
+o2_normal
+    POP {PC}
 
-; Create a 16-byte alert record
-; R1 = Vital type (1=HR, 2=SBP, 3=O2)
-; R2 = Actual reading
-; R3 = Threshold value
-create_alert_record
-    PUSH {R4-R9, LR}
+; ============================================
+; Increment alert count for patient
+; R0 = Patient number (1-3)
+; ============================================
+increment_alert_count
+    PUSH {R1-R2, LR}
     
-    ; Get current alert index
-    LDR R4, =alert_index
-    LDR R5, [R4]        ; R5 = current index
+    ; Get the address of the patient's alert count
+    CMP R0, #1
+    BNE check_patient2_increment
     
-    ; Calculate buffer address: alert_buffer + (index * 16)
-    LDR R6, =alert_buffer
-    MOV R7, #16
-    MUL R8, R5, R7      ; R8 = index * 16
-    ADD R9, R6, R8      ; R9 = alert record address
+    ; Patient 1
+    LDR R1, =patient_alert_count1
+    B do_increment
     
-    ; Byte 0-3: Store vital type
-    STR R1, [R9]
+check_patient2_increment
+    CMP R0, #2
+    BNE patient3_increment
     
-    ; Byte 4-7: Store actual reading
-    STR R2, [R9, #4]
+    ; Patient 2
+    LDR R1, =patient_alert_count2
+    B do_increment
     
-    ; Byte 8-11: Store threshold value
-    STR R3, [R9, #8]
+patient3_increment
+    ; Patient 3
+    LDR R1, =patient_alert_count3
     
-    ; Byte 12-15: Store timestamp and increment
-    LDR R6, =timestamp_counter
-    LDR R7, [R6]        ; R7 = current timestamp
-    STR R7, [R9, #12]
+do_increment
+    ; Load current count, increment, store back
+    LDR R2, [R1]
+    ADD R2, R2, #1
+    STR R2, [R1]
     
-    ; Increment timestamp for next alert
-    ADD R7, R7, #1
-    STR R7, [R6]
-    
-    ; Update alert index (wrap around after 10 alerts)
-    ADD R5, R5, #1
-    CMP R5, #10
-    MOVGE R5, #0
-    STR R5, [R4]
-    
-    POP {R4-R9, PC}
+    POP {R1-R2, PC}
 
     END

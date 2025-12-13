@@ -1,40 +1,37 @@
-        AREA myData, DATA, READWRITE
-        ALIGN 4
-
-; Sensor ADDRESSES (2 patients)
-HR1    EQU 0x20001000  ; Patient 1 Heart Rate
-BP1    EQU 0x20001004  ; Patient 1 Blood Pressure
-O21    EQU 0x20001008  ; Patient 1 Oxygen
-
-HR2    EQU 0x2000100C  ; Patient 2 Heart Rate
-BP2    EQU 0x20001010  ; Patient 2 Blood Pressure
-O22    EQU 0x20001014  ; Patient 2 Oxygen
-
-; Buffers for 2 patients (10 readings each)
-hr1_buffer   SPACE 40   ; 10 words for Patient 1 HR
-hr2_buffer   SPACE 40   ; Patient 2 HR
-
-bp1_buffer   SPACE 40   ; Patient 1 BP
-bp2_buffer   SPACE 40   ; Patient 2 BP
-
-o21_buffer   SPACE 40   ; Patient 1 O2
-o22_buffer   SPACE 40   ; Patient 2 O2
-
-; Indexes (one for each buffer)
-hr1_index    DCD 0
-hr2_index    DCD 0
-
-bp1_index    DCD 0
-bp2_index    DCD 0
-
-o21_index    DCD 0
-o22_index    DCD 0
 
         AREA |.text|, CODE, READONLY
-        EXPORT main
-        ENTRY
+        EXPORT two
+        
+        IMPORT HR1
+        IMPORT BP1
+        IMPORT O21
+        IMPORT HR2
+        IMPORT BP2
+        IMPORT O22
+        IMPORT HP3
+        IMPORT BP3
+        IMPORT O23
+        IMPORT hr1_index
+        IMPORT hr2_index
+        IMPORT hr3_index
+        IMPORT bp1_index
+        IMPORT bp2_index
+        IMPORT bp3_index
+        IMPORT o21_index
+        IMPORT o22_index
+        IMPORT o23_index
+        IMPORT hr1_buffer
+        IMPORT hr2_buffer
+        IMPORT hr3_buffer
+        IMPORT bp1_buffer
+        IMPORT bp2_buffer
+        IMPORT bp3_buffer
+        IMPORT o21_buffer
+        IMPORT o22_buffer
+        IMPORT o23_buffer
+        IMPORT 
 
-main
+two
     ; Reset all indexes to 0
     MOV R0, #0
     
