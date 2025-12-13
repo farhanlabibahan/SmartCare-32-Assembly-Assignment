@@ -1,0 +1,21 @@
+0x20001000: HR1 (Patient 1 Heart Rate)
+0x20001004: BP1 (Patient 1 Blood Pressure)
+0x20001008: O21 (Patient 1 Oxygen)
+0x2000100C: HR2 (Patient 2 Heart Rate)
+0x20001010: BP2 (Patient 2 Blood Pressure)
+0x20001014: O22 (Patient 2 Oxygen)
+
+Buffer Storage
+
+hr1_buffer: [0], [1], [2], [3], [4], [5], [6], [7], [8], [9]  (Patient 1)
+hr2_buffer: [0], [1], [2], [3], [4], [5], [6], [7], [8], [9]  (Patient 2)
+
+
+hr1_index: 0-9 (where to store next HR reading for Patient 1)
+hr2_index: 0-9 (where to store next HR reading for Patient 2)
+
+bp1_index: 0-9 (where to store next BP reading for Patient 1)
+bp2_index: 0-9 (where to store next BP reading for Patient 2)
+
+o21_index: 0-9 (where to store next O2 reading for Patient 1)
+o22_index: 0-9 (where to store next O2 reading for Patient 2)
