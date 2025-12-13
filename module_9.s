@@ -1,9 +1,11 @@
-        AREA |.text|, CODE, READONLY
-        EXPORT nine
+        AREA Module09, CODE, READONLY
+        EXPORT module_nine
         
-        IMPORT patient_alert_count1, patient_alert_count2, patient_alert_count3
+        IMPORT patient_alert_count1
+		IMPORT patient_alert_count2
+		IMPORT patient_alert_count3
 
-nine
+module_nine
     ; Load all alert counts
     LDR R0, =patient_alert_count1
     LDR R1, =patient_alert_count2

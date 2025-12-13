@@ -1,94 +1,169 @@
+; ============================================================
+; MODULE 01: Patient Record Initialization
+; SUPER SIMPLE VERSION
+; ============================================================
 
-
-        AREA PatientData, DATA, READWRITE
+        AREA    Module01, CODE, READONLY
         
-
-; Space for 2 patient structures (24 bytes each)
-patient_struct  SPACE 48        ; Reserve space for 2 patients (24 bytes each)
-
-        AREA |.text|, CODE, READONLY
-        EXPORT one
-
-        IMPORT patient1_name
-        IMPORT patient2_name
-        IMPORT patient3_name
-        IMPORT med_list1
-        IMPORT med_list2
-        IMPORT med_list3
-        IMPORT patient_id1
-        IMPORT patient_id2
-        IMPORT patient_id3
+        ; Import from data file
+        IMPORT  patient1_name
+        IMPORT  patient2_name  
+        IMPORT  patient3_name
+        IMPORT  patient_id1
+        IMPORT  patient_id2
+        IMPORT  patient_id3
+        IMPORT  med_list1
+        IMPORT  med_list2
+        IMPORT  med_list3
         
-one
+        ; Export functions
+        EXPORT  init_patients
+        EXPORT  get_patient1
+        EXPORT  get_patient2
+        EXPORT  get_patient3
+
+; Memory addresses for patients
+PATIENT1_ADDR    EQU  0x20000000
+PATIENT2_ADDR    EQU  0x20000020  
+PATIENT3_ADDR    EQU  0x20000040
+
+; ============================================================
+; Function: init_patients
+; Initialize all 3 patients
+; ============================================================
+init_patients
+    PUSH    {LR}
     
-   
-    BL init_patient1    
-    BL init_patient2
+    BL      init_patient1
+    BL      init_patient2  
+    BL      init_patient3
+    
+    POP     {PC}
 
-stop
-    B stop
-
-
+; ============================================================
+; Patient 1: Shahriar Samrat
+; ============================================================
 init_patient1
-    ; Store Patient ID
-    LDR R1, =patient_id1      
-    STR R1, [R0]             ; Offset 0x00
+    LDR     R4, =PATIENT1_ADDR
     
-    ; Store Name pointer
-    LDR R1, =patient1_name   
-    STR R1, [R0, #4]         ; Offset 0x04
+    ; Store ID
+    LDR     R0, =patient_id1
+    LDR     R1, [R0]
+    STR     R1, [R4]
     
-    ; Store Age
-    MOV R1, #45              
-    STRB R1, [R0, #8]        ; Offset 0x08
+    ; Store name pointer
+    LDR     R2, =patient1_name
+    STR     R2, [R4, #4]
     
-    ; Store Ward number - properly aligned at halfword boundary
-    MOV R1, #205             
-    STRH R1, [R0, #10]       ; Offset 0x0A
+    ; Store age (35)
+    MOV     R0, #35
+    STRB    R0, [R4, #8]
     
-    ; Store Treatment code
-    MOV R1, #0x3A            
-    STRB R1, [R0, #12]       ; Offset 0x0C
+    ; Store ward (201)
+    MOV     R0, #201
+    STRH    R0, [R4, #10]
     
-    ; Store Room Daily Rate
-    LDR R1, =2500            
-    STR R1, [R0, #16]        ; Offset 0x10
+    ; Store treatment code (1)
+    MOV     R0, #1
+    STRB    R0, [R4, #12]
     
-    ; Store Medicine List pointer
-    LDR R1, =med_list1       
-    STR R1, [R0, #20]        ; Offset 0x14
+    ; Store room rate (2500)
+    LDR     R0, =2500
+    STR     R0, [R4, #16]
     
-    BX LR
+    ; Store medicine list pointer
+    LDR     R3, =med_list1
+    STR     R3, [R4, #20]
+    
+    BX      LR
 
+; ============================================================
+; Patient 2: Dipa Biswas
+; ============================================================
 init_patient2
-    ; Store Patient ID
-    LDR R1, =patient_id2      
-    STR R1, [R0]             ; Offset 0x00
+    LDR     R4, =PATIENT2_ADDR
     
-    ; Store Name pointer
-    LDR R1, =patient2_name   
-    STR R1, [R0, #4]         ; Offset 0x04
+    ; Store ID
+    LDR     R0, =patient_id2
+    LDR     R1, [R0]
+    STR     R1, [R4]
     
-    ; Store Age
-    MOV R1, #32              
-    STRB R1, [R0, #8]        ; Offset 0x08
+    ; Store name pointer
+    LDR     R2, =patient2_name
+    STR     R2, [R4, #4]
     
-    ; Store Ward number
-    MOV R1, #107             
-    STRH R1, [R0, #10]       ; Offset 0x0A
+    ; Store age (28)
+    MOV     R0, #28
+    STRB    R0, [R4, #8]
     
-    ; Store Treatment code
-    MOV R1, #0x2B            
-    STRB R1, [R0, #12]       ; Offset 0x0C
+    ; Store ward (305)
+    MOV     R0, #305
+    STRH    R0, [R4, #10]
     
-    ; Store Room Daily Rate
-    LDR R1, =1800            
-    STR R1, [R0, #16]        ; Offset 0x10
+    ; Store treatment code (2)
+    MOV     R0, #2
+    STRB    R0, [R4, #12]
     
-    ; Store Medicine List pointer
-    LDR R1, =med_list2       
-    STR R1, [R0, #20]        ; Offset 0x14
+    ; Store room rate (1800)
+    LDR     R0, =1800
+    STR     R0, [R4, #16]
     
-    BX LR
+    ; Store medicine list pointer
+    LDR     R3, =med_list2
+    STR     R3, [R4, #20]
+    
+    BX      LR
 
-    END
+; ============================================================
+; Patient 3: Farhan Labib
+; ============================================================
+init_patient3
+    LDR     R4, =PATIENT3_ADDR
+    
+    ; Store ID
+    LDR     R0, =patient_id3
+    LDR     R1, [R0]
+    STR     R1, [R4]
+    
+    ; Store name pointer
+    LDR     R2, =patient3_name
+    STR     R2, [R4, #4]
+    
+    ; Store age (42)
+    MOV     R0, #42
+    STRB    R0, [R4, #8]
+    
+    ; Store ward (102)
+    MOV     R0, #102
+    STRH    R0, [R4, #10]
+    
+    ; Store treatment code (3)
+    MOV     R0, #3
+    STRB    R0, [R4, #12]
+    
+    ; Store room rate (3200)
+    LDR     R0, =3200
+    STR     R0, [R4, #16]
+    
+    ; Store medicine list pointer
+    LDR     R3, =med_list3
+    STR     R3, [R4, #20]
+    
+    BX      LR
+
+; ============================================================
+; Get patient address functions
+; ============================================================
+get_patient1
+    LDR     R0, =PATIENT1_ADDR
+    BX      LR
+
+get_patient2
+    LDR     R0, =PATIENT2_ADDR
+    BX      LR
+
+get_patient3
+    LDR     R0, =PATIENT3_ADDR
+    BX      LR
+
+        END

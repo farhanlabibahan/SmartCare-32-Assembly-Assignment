@@ -1,6 +1,5 @@
         AREA SharedData, DATA, READWRITE
         
-
         ; MODULE 01: Patient Information
 
 ; Patient Names
@@ -10,8 +9,6 @@ patient2_name       DCB "Dipa Biswas", 0
                     ALIGN 4
 patient3_name       DCB "Farhan Labib", 0
                     ALIGN 4
-
-
 
 ; Patient ID
 patient_id1        DCD 0x00001001
@@ -23,9 +20,6 @@ med_list1           DCD 0x11111111, 0x22222222
 med_list2           DCD 0x12345678, 0x9ABCDEF0, 0
 med_list3           DCD 0xDEADBEEF, 0xFEEDC
 
-
-
-
         EXPORT patient1_name
         EXPORT patient2_name
         EXPORT patient3_name
@@ -35,7 +29,6 @@ med_list3           DCD 0xDEADBEEF, 0xFEEDC
         EXPORT patient_id1
         EXPORT patient_id2
         EXPORT patient_id3
-
 
         ; MODULE 02: Patient Vitals Indexes
 
@@ -47,7 +40,7 @@ HR2    EQU 0x2000100C  ; Patient 2 Heart Rate
 BP2    EQU 0x20001010  ; Patient 2 Blood Pressure
 O22    EQU 0x20001014  ; Patient 2 Oxygen
 
-HP3    EQU 0x20001018  ; Patient 3 Heart Rate
+HR3    EQU 0x20001018  ; Patient 3 Heart Rate
 BP3    EQU 0x2000101C  ; Patient 3 Blood Pressure
 O23    EQU 0x20001020  ; Patient 3 Oxygen
 
@@ -69,7 +62,6 @@ hr1_index    DCD 0
 hr2_index    DCD 0
 hr3_index    DCD 0
 
-
 bp1_index    DCD 0
 bp2_index    DCD 0
 bp3_index    DCD 0
@@ -78,14 +70,13 @@ o21_index    DCD 0
 o22_index    DCD 0
 o23_index    DCD 0
 
-
         EXPORT HR1
         EXPORT BP1
         EXPORT O21
         EXPORT HR2
         EXPORT BP2
         EXPORT O22
-        EXPORT HP3
+        EXPORT HR3
         EXPORT BP3
         EXPORT O23
         EXPORT hr1_index
@@ -106,7 +97,6 @@ o23_index    DCD 0
         EXPORT o21_buffer
         EXPORT o22_buffer
         EXPORT o23_buffer
-
 
         ; MODULE 03: Alert Management
 
@@ -148,14 +138,32 @@ timestamp_counter   DCD 0
 patient_alert_count1 DCD 0
 patient_alert_count2 DCD 0  
 patient_alert_count3 DCD 0
-; ============================
 
-        EXPORT hr_alert_flag1, hr_alert_flag2, hr_alert_flag3
-        EXPORT o2_alert_flag1, o2_alert_flag2, o2_alert_flag3
-        EXPORT sbp_alert_flag1, sbp_alert_flag2, sbp_alert_flag3
-        EXPORT alert_buffer1, alert_buffer2, alert_buffer3
-        EXPORT alert_index1, alert_index2, alert_index3
+        ; ============================
+        ; FIXED EXPORTS - Separate lines
+        ; ============================
+        EXPORT hr_alert_flag1
+        EXPORT hr_alert_flag2
+        EXPORT hr_alert_flag3
+        EXPORT o2_alert_flag1
+        EXPORT o2_alert_flag2
+        EXPORT o2_alert_flag3
+        EXPORT sbp_alert_flag1
+        EXPORT sbp_alert_flag2
+        EXPORT sbp_alert_flag3
+        EXPORT alert_buffer1
+        EXPORT alert_buffer2
+        EXPORT alert_buffer3
+        EXPORT alert_index1
+        EXPORT alert_index2
+        EXPORT alert_index3
         EXPORT timestamp_counter
-        EXPORT patient_alert_count1, patient_alert_count2, patient_alert_count3  ; EXPORTED
-        EXPORT HR_HIGH_THRESHOLD, O2_LOW_THRESHOLD
-        EXPORT SBP_HIGH_THRESHOLD, SBP_LOW_THRESHOLD
+        EXPORT patient_alert_count1
+        EXPORT patient_alert_count2
+        EXPORT patient_alert_count3
+        EXPORT HR_HIGH_THRESHOLD
+        EXPORT O2_LOW_THRESHOLD
+        EXPORT SBP_HIGH_THRESHOLD
+        EXPORT SBP_LOW_THRESHOLD
+
+        END

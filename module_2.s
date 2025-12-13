@@ -1,6 +1,5 @@
-
-        AREA |.text|, CODE, READONLY
-        EXPORT two
+        AREA Module02, CODE, READONLY
+        EXPORT module_two
         
         IMPORT HR1
         IMPORT BP1
@@ -8,30 +7,29 @@
         IMPORT HR2
         IMPORT BP2
         IMPORT O22
-        IMPORT HP3
+        IMPORT HR3          ; Fixed: Changed HP3 to HR3
         IMPORT BP3
         IMPORT O23
         IMPORT hr1_index
         IMPORT hr2_index
-        IMPORT hr3_index
+        IMPORT hr3_index    ; Added
         IMPORT bp1_index
         IMPORT bp2_index
-        IMPORT bp3_index
+        IMPORT bp3_index    ; Added
         IMPORT o21_index
         IMPORT o22_index
-        IMPORT o23_index
+        IMPORT o23_index    ; Added
         IMPORT hr1_buffer
         IMPORT hr2_buffer
-        IMPORT hr3_buffer
+        IMPORT hr3_buffer   ; Added
         IMPORT bp1_buffer
         IMPORT bp2_buffer
-        IMPORT bp3_buffer
+        IMPORT bp3_buffer   ; Added
         IMPORT o21_buffer
         IMPORT o22_buffer
-        IMPORT o23_buffer
-        IMPORT 
+        IMPORT o23_buffer   ; Added
 
-two
+module_two
     ; Reset all indexes to 0
     MOV R0, #0
     
@@ -40,11 +38,15 @@ two
     STR R0, [R1]
     LDR R1, =hr2_index
     STR R0, [R1]
+    LDR R1, =hr3_index      ; Added Patient 3
+    STR R0, [R1]
     
     ; Reset BP indexes
     LDR R1, =bp1_index
     STR R0, [R1]
     LDR R1, =bp2_index
+    STR R0, [R1]
+    LDR R1, =bp3_index      ; Added Patient 3
     STR R0, [R1]
     
     ; Reset O2 indexes
@@ -52,16 +54,18 @@ two
     STR R0, [R1]
     LDR R1, =o22_index
     STR R0, [R1]
+    LDR R1, =o23_index      ; Added Patient 3
+    STR R0, [R1]
     
-    ; Read both patients
-    BL read_both_patients
+    ; Read all patients
+    BL read_all_patients    ; Changed from read_both_patients
 
 stop
     B stop
 
 
-; Read both patients
-read_both_patients
+; Read all patients
+read_all_patients
     PUSH {LR}
     
     ; Read Patient 1
@@ -69,6 +73,9 @@ read_both_patients
     
     ; Read Patient 2
     BL read_patient2
+    
+    ; Read Patient 3
+    BL read_patient3       ; Added
     
     POP {PC}
 
@@ -124,6 +131,34 @@ read_patient2
     LDR R1, [R0]
     LDR R2, =o22_buffer
     LDR R3, =o22_index
+    BL store_reading
+    
+    POP {PC}
+
+
+; Read Patient 3 - Added this function
+read_patient3
+    PUSH {LR}
+    
+    ; Read HR for Patient 3
+    LDR R0, =HR3
+    LDR R1, [R0]
+    LDR R2, =hr3_buffer
+    LDR R3, =hr3_index
+    BL store_reading
+    
+    ; Read BP for Patient 3
+    LDR R0, =BP3
+    LDR R1, [R0]
+    LDR R2, =bp3_buffer
+    LDR R3, =bp3_index
+    BL store_reading
+    
+    ; Read O2 for Patient 3
+    LDR R0, =O23
+    LDR R1, [R0]
+    LDR R2, =o23_buffer
+    LDR R3, =o23_index
     BL store_reading
     
     POP {PC}

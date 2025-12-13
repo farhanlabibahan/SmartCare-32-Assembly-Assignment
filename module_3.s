@@ -1,15 +1,27 @@
-        AREA |.text|, CODE, READONLY
-        EXPORT three    
+        AREA Module03, CODE, READONLY
+        EXPORT module_three    
         
-        IMPORT hr_alert_flag1, hr_alert_flag2, hr_alert_flag3
-        IMPORT o2_alert_flag1, o2_alert_flag2, o2_alert_flag3
-        IMPORT sbp_alert_flag1, sbp_alert_flag2, sbp_alert_flag3
-        IMPORT alert_buffer1, alert_buffer2, alert_buffer3
-        IMPORT alert_index1, alert_index2, alert_index3
+        IMPORT hr_alert_flag1
+        IMPORT hr_alert_flag2
+        IMPORT hr_alert_flag3
+        IMPORT o2_alert_flag1
+        IMPORT o2_alert_flag2
+        IMPORT o2_alert_flag3
+        IMPORT sbp_alert_flag1
+        IMPORT sbp_alert_flag2
+        IMPORT sbp_alert_flag3
+        IMPORT alert_buffer1
+        IMPORT alert_buffer2
+        IMPORT alert_buffer3
+        IMPORT alert_index1
+        IMPORT alert_index2
+        IMPORT alert_index3
         IMPORT timestamp_counter
-        IMPORT patient_alert_count1, patient_alert_count2, patient_alert_count3
+        IMPORT patient_alert_count1
+        IMPORT patient_alert_count2
+        IMPORT patient_alert_count3
 
-three
+module_three
     ; Initialize
     MOV R0, #0
     
