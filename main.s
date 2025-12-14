@@ -10,11 +10,13 @@
 		; IMPORT FROM MODULE 02-11
 		IMPORT	module_two
 		IMPORT	module_three
+		IMPORT  module_four
 		IMPORT	module_nine
 		IMPORT 	module_five
 		IMPORT	module_six
 		IMPORT  module_seven
 		IMPORT  module_eight
+		IMPORT  module_ten
 			
 		
 
@@ -27,6 +29,9 @@ main
 		
 		; MODULE 03
 		BL		module_three
+		
+		; MODULE 04
+		BL		module_four
 		
 		; MODULE 09
 		BL		module_nine
@@ -42,6 +47,12 @@ main
 		
 		; MODULE 08
 		BL		module_eight
+		
+		; MODULE 10
+		BL		module_ten
+		
+		; MODULE 11
+		;BL		module_eleven
 		
 		
 		

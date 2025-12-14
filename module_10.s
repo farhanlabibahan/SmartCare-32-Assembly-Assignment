@@ -1,42 +1,45 @@
-		AREA myData, DATA, READWRITE
-        ALIGN 4
-
-; Patient Structure (simple version)
-patient_id      DCD 100        ; Patient ID
-patient_age     DCD 65          ; Age
-patient_ward    DCD 7           ; Ward
-patient_hr      DCD 130         ; Heart Rate
-patient_o2      DCD 95          ; O2 Level
-patient_alerts  DCD 3           ; Alert Count
-patient_bill    DCD 12500       ; Billing $125.00 (in cents)
-
-; ITM Port 0 address (for printf in Keil)
+        AREA UART_Summary, CODE, READONLY
+        EXPORT module_ten
+        
+        ; Import symbols from other modules
+        IMPORT TREATMENT_COST
+        IMPORT ROOM_COST
+        IMPORT MEDICINE_COST
+        IMPORT LABTEST_COST
+        IMPORT TOTAL_BILL
+        IMPORT patient_id1
+        IMPORT patient_alert_count1
+        IMPORT patient1_name
+        
+        ; ITM Port 0 address (for printf in Keil)
 ITM_PORT0       EQU 0xE0000000
 ITM_TER0        EQU 0xE0000E00  ; ITM Trace Enable Register
 ITM_TPR         EQU 0xE0000E40  ; ITM Trace Privilege Register
 ITM_TCR         EQU 0xE0000E80  ; ITM Trace Control Register
 
-; Strings
-title       DCB "ICU Patient Summary\r\n", 0
-sep         DCB "--------------------\r\n", 0
-id_str      DCB "ID: ", 0
-age_str     DCB "Age: ", 0
-ward_str    DCB "Ward: ", 0
-hr_str      DCB "HR: ", 0
-o2_str      DCB "O2: ", 0
-alert_str   DCB "Alerts: ", 0
-bill_str    DCB "Bill: $", 0
-newline     DCB "\r\n", 0
+        ; Strings
+title           DCB "Patient 1 Summary\r\n", 0
+sep             DCB "--------------------\r\n", 0
+id_str          DCB "ID: ", 0
+name_str        DCB "Name: ", 0
+alert_str       DCB "Alerts: ", 0
+bill_str        DCB "Bill Details:\r\n", 0
+treat_str       DCB "  Treatment: $", 0
+room_str        DCB "  Room: $", 0
+med_str         DCB "  Medicine: $", 0
+lab_str         DCB "  Lab: $", 0
+total_str       DCB "  TOTAL: $", 0
+newline         DCB "\r\n", 0
 
         AREA |.text|, CODE, READONLY
-        EXPORT main
+        EXPORT module_ten
         ENTRY
 
-main
+module_ten
     ; Initialize ITM for debug output
     BL init_itm
     
-    ; Generate summary for 1 patient
+    ; Generate summary for Patient 1
     BL print_summary
     
 stop
@@ -79,72 +82,86 @@ print_summary
     LDR R0, =sep
     BL print_string
     
+    ; Print Patient Name
+    LDR R0, =name_str
+    BL print_string
+    LDR R0, =patient1_name
+    BL print_string
+    LDR R0, =newline
+    BL print_string
+    
     ; Print Patient ID
     LDR R0, =id_str
     BL print_string
-    LDR R0, =patient_id
+    LDR R0, =patient_id1
     LDR R0, [R0]
-    BL print_number
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print Age
-    LDR R0, =age_str
-    BL print_string
-    LDR R0, =patient_age
-    LDR R0, [R0]
-    BL print_number
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print Ward
-    LDR R0, =ward_str
-    BL print_string
-    LDR R0, =patient_ward
-    LDR R0, [R0]
-    BL print_number
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print Heart Rate
-    LDR R0, =hr_str
-    BL print_string
-    LDR R0, =patient_hr
-    LDR R0, [R0]
-    BL print_number
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print O2 Level
-    LDR R0, =o2_str
-    BL print_string
-    LDR R0, =patient_o2
-    LDR R0, [R0]
-    BL print_number
+    BL print_hex_number
     LDR R0, =newline
     BL print_string
     
     ; Print Alert Count
     LDR R0, =alert_str
     BL print_string
-    LDR R0, =patient_alerts
+    LDR R0, =patient_alert_count1
     LDR R0, [R0]
     BL print_number
     LDR R0, =newline
     BL print_string
     
-    ; Print Billing
+    ; Print billing header
+    LDR R0, =newline
+    BL print_string
     LDR R0, =bill_str
     BL print_string
-    LDR R0, =patient_bill
+    
+    ; Print Treatment Cost
+    LDR R0, =treat_str
+    BL print_string
+    LDR R0, =TREATMENT_COST
     LDR R0, [R0]
-    BL print_bill
+    BL print_bill_amount
+    LDR R0, =newline
+    BL print_string
+    
+    ; Print Room Cost
+    LDR R0, =room_str
+    BL print_string
+    LDR R0, =ROOM_COST
+    LDR R0, [R0]
+    BL print_bill_amount
+    LDR R0, =newline
+    BL print_string
+    
+    ; Print Medicine Cost
+    LDR R0, =med_str
+    BL print_string
+    LDR R0, =MEDICINE_COST
+    LDR R0, [R0]
+    BL print_bill_amount
+    LDR R0, =newline
+    BL print_string
+    
+    ; Print Lab Test Cost
+    LDR R0, =lab_str
+    BL print_string
+    LDR R0, =LABTEST_COST
+    LDR R0, [R0]
+    BL print_bill_amount
+    LDR R0, =newline
+    BL print_string
+    
+    ; Print Total Bill
+    LDR R0, =total_str
+    BL print_string
+    LDR R0, =TOTAL_BILL
+    LDR R0, [R0]
+    BL print_bill_amount
     
     POP {PC}
 
-; Print billing as dollars.cents
+; Print bill amount as dollars.cents
 ; R0 = amount in cents
-print_bill
+print_bill_amount
     PUSH {R0-R5, LR}
     
     ; Get dollars (divide by 100)
@@ -171,38 +188,32 @@ dollars_done
     BL send_char
     
     ; Print cents (always 2 digits)
-    ; R2 already has remainder (cents 0-99)
     MOV R0, R2
-    
-    ; Check if less than 10
     CMP R0, #10
     BGE print_two_digits
     
     ; Print leading zero
-    MOV R1, #'0'
-    MOV R0, R1
+    MOV R0, #'0'
     BL send_char
     
-    ; Get cents value again from R2
+    ; Print cents digit
     MOV R0, R2
-    B print_one_digit
+    ADD R0, R0, #'0'
+    BL send_char
+    B cents_done
     
 print_two_digits
     ; R0 has cents (10-99)
-    ; Need to print tens digit and ones digit
-    
-    ; Save original
     MOV R4, R0          ; Save cents
     MOV R5, #10         ; Divisor
     
     ; Get tens digit
-    MOV R0, R4
     MOV R1, R5
     BL divide_simple    ; R0 = tens digit
     MOV R3, R0          ; Save tens digit
     
     ; Print tens digit
-    ADD R0, R3, #'0'    ; Convert to ASCII
+    ADD R0, R3, #'0'
     BL send_char
     
     ; Calculate ones digit: cents - (tens * 10)
@@ -210,98 +221,105 @@ print_two_digits
     MUL R0, R0, R5      ; tens * 10
     SUB R0, R4, R0      ; cents - (tens * 10)
     
-print_one_digit
-    ; R0 has single digit (0-9)
-    ADD R0, R0, #'0'    ; Convert to ASCII
+    ; Print ones digit
+    ADD R0, R0, #'0'
     BL send_char
     
-    ; Print newline
-    LDR R0, =newline
-    BL print_string
-    
+cents_done
     POP {R0-R5, PC}
 
-; Print a number (0-999)
+; Print a decimal number (0-9999)
 ; R0 = number to print
 print_number
-    PUSH {R0-R5, LR}
+    PUSH {R0-R4, LR}
     
-    ; Check if 0
+    ; Check if zero
     CMP R0, #0
     BNE not_zero
     
-    ; Print "0"
     MOV R0, #'0'
     BL send_char
     B number_done
     
 not_zero
-    ; Count digits
-    MOV R4, R0          ; Save number
-    MOV R5, #0          ; Digit counter
+    ; Convert number to ASCII digits
+    MOV R1, SP
+    SUB SP, SP, #16     ; Reserve space for 16 digits
+    MOV R2, SP
+    MOV R3, #0          ; Digit count
     
-count_loop
-    CMP R4, #0
-    BEQ counted
-    MOV R1, #10
-    BL divide_by_10     ; R0 = quotient, R1 = remainder
-    MOV R4, R0          ; Update number
-    ADD R5, R5, #1      ; Increment counter
-    B count_loop
+convert_loop
+    MOV R4, #10
+    BL divide_simple    ; R0 = quotient, remainder in R1?
     
-counted
-    ; R5 = number of digits
-    ; Restore original number
-    LDR R0, [SP, #0]    ; Get original from stack
+    ; Get remainder
+    MOV R1, R0          ; Save quotient
+    MOV R0, R4          ; Original number
+    MOV R10,#10
+    MUL R4, R1, R10     ; quotient * 10
+    SUB R0, R0, R4      ; remainder
     
-    ; For 3-digit number
-    CMP R5, #3
-    BNE check_two
-    
-    ; Hundreds digit
-    MOV R1, #100
-    BL divide_simple    ; R0 = hundreds digit
-    MOV R3, R0          ; Save hundreds digit
-    ADD R0, R3, #'0'
-    BL send_char
-    
-    ; Update number: subtract (hundreds * 100)
-    MOV R1, #100
-    MUL R2, R3, R1      ; hundreds * 100
-    LDR R0, [SP, #0]    ; Get original
-    SUB R0, R0, R2
-    STR R0, [SP, #0]    ; Update on stack
-    MOV R5, #2          ; Now 2 digits left
-    
-check_two
-    CMP R5, #2
-    BNE check_one
-    
-    ; Tens digit
-    LDR R0, [SP, #0]    ; Get updated number
-    MOV R1, #10
-    BL divide_simple    ; R0 = tens digit
-    MOV R3, R0          ; Save tens digit
-    ADD R0, R3, #'0'
-    BL send_char
-    
-    ; Update number: subtract (tens * 10)
-    MOV R1, #10
-    MUL R2, R3, R1      ; tens * 10
-    LDR R0, [SP, #0]    ; Get current number
-    SUB R0, R0, R2
-    STR R0, [SP, #0]    ; Update on stack
-    
-check_one
-    ; Ones digit
-    LDR R0, [SP, #0]    ; Get final number
+    ; Store digit
     ADD R0, R0, #'0'
+    STRB R0, [R2], #1
+    ADD R3, R3, #1
+    
+    ; Next digit
+    MOV R0, R1
+    CMP R0, #0
+    BNE convert_loop
+    
+    ; Print digits in reverse order
+print_digits
+    SUB R2, R2, #1
+    LDRB R0, [R2]
     BL send_char
+    SUBS R3, R3, #1
+    BNE print_digits
+    
+    ADD SP, SP, #16     ; Clean up stack
     
 number_done
-    POP {R0-R5, PC}
+    POP {R0-R4, PC}
 
-; Simple divide: R0 / R1, result in R0, remainder lost
+; Print hex number (for patient ID)
+; R0 = hex number to print
+print_hex_number
+    PUSH {R0-R4, LR}
+    
+    ; Print "0x" prefix
+    MOV R0, #'0'
+    BL send_char
+    MOV R0, #'x'
+    BL send_char
+    
+    MOV R4, #28         ; Start with most significant nibble
+    
+hex_loop
+    MOV R3, R0          ; Copy to R3
+    LSR R3, R4          ; Shift to get current nibble
+    AND R3, R3, #0xF    ; Mask to get 4 bits
+    
+    ; Convert to ASCII
+    CMP R3, #9
+    BGT hex_letter
+    ADD R3, #'0'
+    B print_hex_char
+    
+hex_letter
+    SUB R3, #10
+    ADD R3, #'A'
+    
+print_hex_char
+    MOV R0, R3
+    BL send_char
+    
+    SUBS R4, #4
+    BPL hex_loop
+    
+    POP {R0-R4, PC}
+
+; Simple divide: R0 / R1, result in R0
 divide_simple
     PUSH {R2}
     MOV R2, #0
@@ -316,25 +334,7 @@ div_done
     POP {R2}
     BX LR
 
-; Divide by 10: R0 / 10, quotient in R0, remainder in R1
-divide_by_10
-    MOV R1, #0
-div10_loop
-    CMP R0, #10
-    BLT div10_done
-    SUB R0, R0, #10
-    ADD R1, R1, #1
-    B div10_loop
-div10_done
-    ; R0 = remainder, R1 = quotient
-    ; Swap to match expected: R0 = quotient, R1 = remainder
-    MOV R2, R0
-    MOV R0, R1
-    MOV R1, R2
-    BX LR
-
 ; Print string
-; R0 = string address
 print_string
     PUSH {R0-R2, LR}
     MOV R1, R0
@@ -348,23 +348,18 @@ str_done
     POP {R0-R2, PC}
 
 ; Send one character to ITM
-; R0 = character
 send_char
     PUSH {R1-R2, LR}
     LDR R1, =ITM_PORT0
     
-    ; Wait until ITM port 0 is ready
-    ; Check if FIFO is full (bit 0 of ITM Port 31)
 wait_fifo
     LDR R2, =0xE0000E7C  ; ITM Port 31 (status port)
     LDR R2, [R2]
     ANDS R2, R2, #1      ; Check bit 0 (FIFO full)
     BNE wait_fifo        ; Wait if FIFO is full
     
-    ; Write character
     STR R0, [R1]
     
-    ; Small delay to ensure character is sent
     MOV R2, #0x100
 delay_loop
     SUBS R2, R2, #1
