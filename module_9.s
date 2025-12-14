@@ -4,9 +4,9 @@
         IMPORT patient_alert_count1
         IMPORT patient_alert_count2
         IMPORT patient_alert_count3
-        IMPORT patient_id1
-        IMPORT patient_id2
-        IMPORT patient_id3
+        IMPORT PATIENT1_ADDR
+        IMPORT PATIENT2_ADDR
+        IMPORT PATIENT3_ADDR    ; <-- FIXED: Changed from PATIENT1_ADDR
 
 module_nine
     ; Load all alert counts and their corresponding patient IDs
@@ -14,9 +14,9 @@ module_nine
     LDR R1, =patient_alert_count2
     LDR R2, =patient_alert_count3
     
-    LDR R3, =patient_id1
-    LDR R4, =patient_id2
-    LDR R5, =patient_id3
+    LDR R3, =PATIENT1_ADDR
+    LDR R4, =PATIENT2_ADDR
+    LDR R5, =PATIENT3_ADDR      ; <-- FIXED: Changed from PATIENT1_ADDR
     
     ; Load alert counts into registers
     LDR R6, [R0]        ; count1
@@ -91,9 +91,9 @@ next_iteration
     STR R7, [R1]        ; Store sorted count2
     STR R8, [R2]        ; Store sorted count3
     
-    LDR R3, =patient_id1
-    LDR R4, =patient_id2
-    LDR R5, =patient_id3
+    LDR R3, =PATIENT1_ADDR
+    LDR R4, =PATIENT2_ADDR
+    LDR R5, =PATIENT3_ADDR
     
     STR R9, [R3]        ; Store sorted id1
     STR R10, [R4]       ; Store sorted id2

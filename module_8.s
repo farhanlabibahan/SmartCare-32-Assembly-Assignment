@@ -1,76 +1,85 @@
-        AREA    BillData, DATA, READWRITE
-        ALIGN   4
+        AREA Module08, CODE, READONLY
+        EXPORT module_eight
+        
+        ; IMPORT variables
+        IMPORT TREATMENT_COST   
+        IMPORT ROOM_COST    
+        IMPORT MEDICINE_COST
+        IMPORT LABTEST_COST
+        IMPORT TOTAL_BILL
+        IMPORT ERROR_FLAG
 
-
-        AREA    BillModule, CODE, READONLY
-        EXPORT  module_eight
-        EXPORT  Compute_Total_Bill
-        IMPORT  TREATMENT_COST   
-        IMPORT  ROOM_COST    
-        IMPORT  MEDICINE_COST
-        IMPORT  LABTEST_COST
-        IMPORT  TOTAL_BILL
-        IMPORT  ERROR_FLAG
-   
-        ENTRY
-
-;module_eight 
 module_eight
-        BL      Compute_Total_Bill
+    PUSH {LR, R4-R11}      ; Save registers
+    
+    ; Compute total bill
+    BL Compute_Total_Bill
+    
+    POP {LR, R4-R11}       ; Restore registers
+    BX LR                  ; Return to main
 
-STOP
-        BX LR
-
-;FUNCTION
+; ============================================
+; Compute_Total_Bill
+; Calculates: total = treatment + room + medicine + labtest
+; Sets ERROR_FLAG if overflow occurs
+; ============================================
 Compute_Total_Bill
-        PUSH    {r4-r7, lr}
-
-        ;clear error flag
-        MOVS    r7, #0
-        LDR     r0, =ERROR_FLAG
-        STR     r7, [r0]
-
-        ;load inputs from memory
-        LDR     r0, =TREATMENT_COST
-        LDR     r1, [r0]
-        
-        LDR     r0, =ROOM_COST
-        LDR     r2, [r0]
-        
-        LDR     r0, =MEDICINE_COST
-        LDR     r3, [r0]
-        
-        LDR     r0, =LABTEST_COST
-        LDR     r4, [r0]
-
-        ;initialize total to 0
-        MOVS    r5, #0
-
-        ;add treatment cost
-        ADDS    r5, r1, r2
-        BCS     overflow
-
-        ;add medicine cost
-        ADDS    r5, r5, r3
-        BCS     overflow
-
-        ;add lab test cost
-        ADDS    r5, r5, r4
-        BCS     overflow
-
-        ;store result
-        LDR     r0, =TOTAL_BILL
-        STR     r5, [r0]
-        POP     {r4-r7, pc}
+    PUSH {R4-R7, LR}
+    
+    ; Clear error flag
+    MOV R7, #0
+    LDR R0, =ERROR_FLAG
+    STR R7, [R0]
+    
+    ; Load all cost components
+    LDR R0, =TREATMENT_COST
+    LDR R1, [R0]           ; R1 = treatment cost
+    
+    LDR R0, =ROOM_COST
+    LDR R2, [R0]           ; R2 = room cost
+    
+    LDR R0, =MEDICINE_COST
+    LDR R3, [R0]           ; R3 = medicine cost
+    
+    LDR R0, =LABTEST_COST
+    LDR R4, [R0]           ; R4 = lab test cost
+    
+    ; Initialize total to 0
+    MOV R5, #0             ; R5 = total bill
+    
+    ; Add treatment cost
+    ADDS R5, R5, R1
+    BCS overflow           ; Check for overflow
+    
+    ; Add room cost
+    ADDS R5, R5, R2
+    BCS overflow           ; Check for overflow
+    
+    ; Add medicine cost
+    ADDS R5, R5, R3
+    BCS overflow           ; Check for overflow
+    
+    ; Add lab test cost
+    ADDS R5, R5, R4
+    BCS overflow           ; Check for overflow
+    
+    ; Store result - no overflow occurred
+    LDR R0, =TOTAL_BILL
+    STR R5, [R0]
+    
+    POP {R4-R7, PC}
 
 overflow
-        MOVS    r7, #1
-        LDR     r0, =ERROR_FLAG
-        STR     r7, [r0]
-        
-        MOVS    r5, #0
-        LDR     r0, =TOTAL_BILL
-        STR     r5, [r0]
-        POP     {r4-r7, pc}
+    ; Set error flag
+    MOV R7, #1
+    LDR R0, =ERROR_FLAG
+    STR R7, [R0]
+    
+    ; Set total bill to 0 (or could set to max value)
+    MOV R5, #0
+    LDR R0, =TOTAL_BILL
+    STR R5, [R0]
+    
+    POP {R4-R7, PC}
 
-        END
+    END

@@ -1,35 +1,38 @@
         AREA Module02, CODE, READONLY
         EXPORT module_two
         
-        IMPORT HR1
-        IMPORT BP1
-        IMPORT O21
-        IMPORT HR2
-        IMPORT BP2
-        IMPORT O22
-        IMPORT HR3          ; Fixed: Changed HP3 to HR3
-        IMPORT BP3
-        IMPORT O23
+        ; IMPORT actual data variables
+        IMPORT HR1_data
+        IMPORT BP1_data
+        IMPORT O21_data
+        IMPORT HR2_data
+        IMPORT BP2_data
+        IMPORT O22_data
+        IMPORT HR3_data
+        IMPORT BP3_data
+        IMPORT O23_data
         IMPORT hr1_index
         IMPORT hr2_index
-        IMPORT hr3_index    ; Added
+        IMPORT hr3_index
         IMPORT bp1_index
         IMPORT bp2_index
-        IMPORT bp3_index    ; Added
+        IMPORT bp3_index
         IMPORT o21_index
         IMPORT o22_index
-        IMPORT o23_index    ; Added
+        IMPORT o23_index
         IMPORT hr1_buffer
         IMPORT hr2_buffer
-        IMPORT hr3_buffer   ; Added
+        IMPORT hr3_buffer
         IMPORT bp1_buffer
         IMPORT bp2_buffer
-        IMPORT bp3_buffer   ; Added
+        IMPORT bp3_buffer
         IMPORT o21_buffer
         IMPORT o22_buffer
-        IMPORT o23_buffer   ; Added
+        IMPORT o23_buffer
 
 module_two
+    PUSH {LR, R4-R11}    ; Save registers
+    
     ; Reset all indexes to 0
     MOV R0, #0
     
@@ -38,7 +41,7 @@ module_two
     STR R0, [R1]
     LDR R1, =hr2_index
     STR R0, [R1]
-    LDR R1, =hr3_index      ; Added Patient 3
+    LDR R1, =hr3_index
     STR R0, [R1]
     
     ; Reset BP indexes
@@ -46,7 +49,7 @@ module_two
     STR R0, [R1]
     LDR R1, =bp2_index
     STR R0, [R1]
-    LDR R1, =bp3_index      ; Added Patient 3
+    LDR R1, =bp3_index
     STR R0, [R1]
     
     ; Reset O2 indexes
@@ -54,14 +57,14 @@ module_two
     STR R0, [R1]
     LDR R1, =o22_index
     STR R0, [R1]
-    LDR R1, =o23_index      ; Added Patient 3
+    LDR R1, =o23_index
     STR R0, [R1]
     
     ; Read all patients
-    BL read_all_patients    ; Changed from read_both_patients
-
-stop
-    BX LR
+    BL read_all_patients
+    
+    POP {LR, R4-R11}     ; Restore registers
+    BX LR                ; Return
 
 
 ; Read all patients
@@ -75,7 +78,7 @@ read_all_patients
     BL read_patient2
     
     ; Read Patient 3
-    BL read_patient3       ; Added
+    BL read_patient3
     
     POP {PC}
 
@@ -85,22 +88,22 @@ read_patient1
     PUSH {LR}
     
     ; Read HR for Patient 1
-    LDR R0, =HR1
-    LDR R1, [R0]           ; Get HR value
+    LDR R0, =HR1_data
+    LDR R1, [R0]
     LDR R2, =hr1_buffer
     LDR R3, =hr1_index
     BL store_reading
     
     ; Read BP for Patient 1
-    LDR R0, =BP1
-    LDR R1, [R0]           ; Get BP value
+    LDR R0, =BP1_data
+    LDR R1, [R0]
     LDR R2, =bp1_buffer
     LDR R3, =bp1_index
     BL store_reading
     
     ; Read O2 for Patient 1
-    LDR R0, =O21
-    LDR R1, [R0]           ; Get O2 value
+    LDR R0, =O21_data
+    LDR R1, [R0]
     LDR R2, =o21_buffer
     LDR R3, =o21_index
     BL store_reading
@@ -113,21 +116,21 @@ read_patient2
     PUSH {LR}
     
     ; Read HR for Patient 2
-    LDR R0, =HR2
+    LDR R0, =HR2_data
     LDR R1, [R0]
     LDR R2, =hr2_buffer
     LDR R3, =hr2_index
     BL store_reading
     
     ; Read BP for Patient 2
-    LDR R0, =BP2
+    LDR R0, =BP2_data
     LDR R1, [R0]
     LDR R2, =bp2_buffer
     LDR R3, =bp2_index
     BL store_reading
     
     ; Read O2 for Patient 2
-    LDR R0, =O22
+    LDR R0, =O22_data
     LDR R1, [R0]
     LDR R2, =o22_buffer
     LDR R3, =o22_index
@@ -136,26 +139,26 @@ read_patient2
     POP {PC}
 
 
-; Read Patient 3 - Added this function
+; Read Patient 3
 read_patient3
     PUSH {LR}
     
     ; Read HR for Patient 3
-    LDR R0, =HR3
+    LDR R0, =HR3_data
     LDR R1, [R0]
     LDR R2, =hr3_buffer
     LDR R3, =hr3_index
     BL store_reading
     
     ; Read BP for Patient 3
-    LDR R0, =BP3
+    LDR R0, =BP3_data
     LDR R1, [R0]
     LDR R2, =bp3_buffer
     LDR R3, =bp3_index
     BL store_reading
     
     ; Read O2 for Patient 3
-    LDR R0, =O23
+    LDR R0, =O23_data
     LDR R1, [R0]
     LDR R2, =o23_buffer
     LDR R3, =o23_index

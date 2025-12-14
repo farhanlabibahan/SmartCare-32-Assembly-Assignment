@@ -1,6 +1,6 @@
 ; ============================================================
 ; MODULE 01: Patient Record Initialization
-; SUPER SIMPLE VERSION
+; UPDATED VERSION - Uses data from data.s
 ; ============================================================
 
         AREA    Module01, CODE, READONLY
@@ -12,9 +12,19 @@
         IMPORT  patient_id1
         IMPORT  patient_id2
         IMPORT  patient_id3
+        IMPORT  patient1_age
+        IMPORT  patient2_age
+        IMPORT  patient3_age
+        IMPORT  patient1_ward
+        IMPORT  patient2_ward
+        IMPORT  patient3_ward
         IMPORT  med_list1
         IMPORT  med_list2
         IMPORT  med_list3
+        IMPORT PATIENT1_ADDR
+        IMPORT PATIENT2_ADDR
+        IMPORT PATIENT3_ADDR
+        IMPORT ROOM_RATE
         
         ; Export functions
         EXPORT  init_patients
@@ -22,14 +32,9 @@
         EXPORT  get_patient2
         EXPORT  get_patient3
 
-; Memory addresses for patients
-PATIENT1_ADDR    EQU  0x20000000
-PATIENT2_ADDR    EQU  0x20000020  
-PATIENT3_ADDR    EQU  0x20000040
-
 ; ============================================================
 ; Function: init_patients
-; Initialize all 3 patients
+; Initialize all 3 patients using data from data.s
 ; ============================================================
 init_patients
     PUSH    {LR}
@@ -42,114 +47,126 @@ init_patients
 
 ; ============================================================
 ; Patient 1: Shahriar Samrat
+; Uses actual data from data.s
 ; ============================================================
 init_patient1
+    PUSH    {R4-R5, LR}
     LDR     R4, =PATIENT1_ADDR
     
-    ; Store ID
+    ; Store ID from data.s
     LDR     R0, =patient_id1
-    LDR     R1, [R0]
-    STR     R1, [R4]
+    LDR     R1, [R0]            ; Get ID from data.s
+    STR     R1, [R4]            ; Store at patient record
     
-    ; Store name pointer
-    LDR     R2, =patient1_name
-    STR     R2, [R4, #4]
+    ; Store name pointer from data.s
+    LDR     R2, =patient1_name  ; Get name address from data.s
+    STR     R2, [R4, #4]        ; Store pointer
     
-    ; Store age (35)
-    MOV     R0, #35
-    STRB    R0, [R4, #8]
+    ; Store age from data.s
+    LDR     R0, =patient1_age
+    LDR     R1, [R0]            ; Get age from data.s
+    STR     R1, [R4, #8]        ; Store age
     
-    ; Store ward (201)
-    MOV     R0, #201
-    STRH    R0, [R4, #10]
+    ; Store ward from data.s (store as pointer to string)
+    LDR     R2, =patient1_ward  ; Get ward address from data.s
+    STR     R2, [R4, #12]       ; Store pointer
     
-    ; Store treatment code (1)
+    ; Store treatment code (using default value 1)
     MOV     R0, #1
-    STRB    R0, [R4, #12]
-    
-    ; Store room rate (2500)
-    LDR     R0, =2500
     STR     R0, [R4, #16]
     
-    ; Store medicine list pointer
-    LDR     R3, =med_list1
-    STR     R3, [R4, #20]
+    ; Store room rate (using value from data.s)
+    LDR     R0, =ROOM_RATE
+    LDR     R1, [R0]            ; Get room rate from data.s
+    STR     R1, [R4, #20]       ; Store room rate
     
-    BX      LR
+    ; Store medicine list pointer from data.s
+    LDR     R3, =med_list1      ; Get med list address from data.s
+    STR     R3, [R4, #24]       ; Store pointer
+    
+    POP     {R4-R5, PC}
 
 ; ============================================================
 ; Patient 2: Dipa Biswas
+; Uses actual data from data.s
 ; ============================================================
 init_patient2
+    PUSH    {R4-R5, LR}
     LDR     R4, =PATIENT2_ADDR
     
-    ; Store ID
+    ; Store ID from data.s
     LDR     R0, =patient_id2
-    LDR     R1, [R0]
+    LDR     R1, [R0]            ; Get ID from data.s
     STR     R1, [R4]
     
-    ; Store name pointer
-    LDR     R2, =patient2_name
+    ; Store name pointer from data.s
+    LDR     R2, =patient2_name  ; Get name address from data.s
     STR     R2, [R4, #4]
     
-    ; Store age (28)
-    MOV     R0, #28
-    STRB    R0, [R4, #8]
+    ; Store age from data.s
+    LDR     R0, =patient2_age
+    LDR     R1, [R0]            ; Get age from data.s
+    STR     R1, [R4, #8]
     
-    ; Store ward (305)
-    MOV     R0, #305
-    STRH    R0, [R4, #10]
+    ; Store ward from data.s
+    LDR     R2, =patient2_ward  ; Get ward address from data.s
+    STR     R2, [R4, #12]
     
-    ; Store treatment code (2)
+    ; Store treatment code (using default value 2)
     MOV     R0, #2
-    STRB    R0, [R4, #12]
-    
-    ; Store room rate (1800)
-    LDR     R0, =1800
     STR     R0, [R4, #16]
     
-    ; Store medicine list pointer
-    LDR     R3, =med_list2
-    STR     R3, [R4, #20]
+    ; Store room rate (using value from data.s)
+    LDR     R0, =ROOM_RATE
+    LDR     R1, [R0]            ; Get room rate from data.s
+    STR     R1, [R4, #20]
     
-    BX      LR
+    ; Store medicine list pointer from data.s
+    LDR     R3, =med_list2      ; Get med list address from data.s
+    STR     R3, [R4, #24]
+    
+    POP     {R4-R5, PC}
 
 ; ============================================================
 ; Patient 3: Farhan Labib
+; Uses actual data from data.s
 ; ============================================================
 init_patient3
+    PUSH    {R4-R5, LR}
     LDR     R4, =PATIENT3_ADDR
     
-    ; Store ID
+    ; Store ID from data.s
     LDR     R0, =patient_id3
-    LDR     R1, [R0]
+    LDR     R1, [R0]            ; Get ID from data.s
     STR     R1, [R4]
     
-    ; Store name pointer
-    LDR     R2, =patient3_name
+    ; Store name pointer from data.s
+    LDR     R2, =patient3_name  ; Get name address from data.s
     STR     R2, [R4, #4]
     
-    ; Store age (42)
-    MOV     R0, #42
-    STRB    R0, [R4, #8]
+    ; Store age from data.s
+    LDR     R0, =patient3_age
+    LDR     R1, [R0]            ; Get age from data.s
+    STR     R1, [R4, #8]
     
-    ; Store ward (102)
-    MOV     R0, #102
-    STRH    R0, [R4, #10]
+    ; Store ward from data.s
+    LDR     R2, =patient3_ward  ; Get ward address from data.s
+    STR     R2, [R4, #12]
     
-    ; Store treatment code (3)
+    ; Store treatment code (using default value 3)
     MOV     R0, #3
-    STRB    R0, [R4, #12]
-    
-    ; Store room rate (3200)
-    LDR     R0, =3200
     STR     R0, [R4, #16]
     
-    ; Store medicine list pointer
-    LDR     R3, =med_list3
-    STR     R3, [R4, #20]
+    ; Store room rate (using value from data.s)
+    LDR     R0, =ROOM_RATE
+    LDR     R1, [R0]            ; Get room rate from data.s
+    STR     R1, [R4, #20]
     
-    BX      LR
+    ; Store medicine list pointer from data.s
+    LDR     R3, =med_list3      ; Get med list address from data.s
+    STR     R3, [R4, #24]
+    
+    POP     {R4-R5, PC}
 
 ; ============================================================
 ; Get patient address functions

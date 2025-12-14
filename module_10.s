@@ -1,416 +1,632 @@
-        AREA UART_Summary, CODE, READONLY
+        AREA Module10, CODE, READONLY
         EXPORT module_ten
         
-        ; Import symbols from other modules
-        IMPORT TREATMENT_COST
-        IMPORT ROOM_COST
-        IMPORT MEDICINE_COST
-        IMPORT LABTEST_COST
-        IMPORT TOTAL_BILL
-        IMPORT patient_id1
-        IMPORT patient_alert_count1
+        ; Import ALL available data from data.s
         IMPORT patient1_name
-        
-        ; ITM Port 0 address (for printf in Keil)
-ITM_PORT0       EQU 0xE0000000
-ITM_TER0        EQU 0xE0000E00  ; ITM Trace Enable Register
-ITM_TPR         EQU 0xE0000E40  ; ITM Trace Privilege Register
-ITM_TCR         EQU 0xE0000E80  ; ITM Trace Control Register
-
-        ; Strings
-title           DCB "Patient 1 Summary\r\n", 0
-sep             DCB "--------------------\r\n", 0
-id_str          DCB "ID: ", 0
-name_str        DCB "Name: ", 0
-alert_str       DCB "Alerts: ", 0
-bill_str        DCB "Bill Details:\r\n", 0
-treat_str       DCB "  Treatment: $", 0
-room_str        DCB "  Room: $", 0
-med_str         DCB "  Medicine: $", 0
-lab_str         DCB "  Lab: $", 0
-total_str       DCB "  TOTAL: $", 0
-newline         DCB "\r\n", 0
-
-        AREA |.text|, CODE, READONLY
-        EXPORT module_ten
-  
+        IMPORT patient2_name
+        IMPORT patient3_name
+        IMPORT patient_id1
+        IMPORT patient_id2
+        IMPORT patient_id3
+        IMPORT patient_alert_count1
+        IMPORT patient_alert_count2
+        IMPORT patient_alert_count3
+        IMPORT TOTAL_BILL
+        IMPORT HR1_data
+        IMPORT BP1_data
+        IMPORT O21_data
+        IMPORT HR2_data
+        IMPORT BP2_data
+        IMPORT O22_data
+        IMPORT HR3_data
+        IMPORT BP3_data
+        IMPORT O23_data
+        IMPORT debug_send    ; Use your existing debug output
 
 module_ten
-    ; Initialize ITM for debug output
-    BL init_itm
+    PUSH {LR, R4-R11}
     
-    ; Generate summary for Patient 1
-    BL print_summary
+    ; Print summary for Patient 1
+    MOV R0, #1
+    BL print_patient_summary
     
-    BX LR    ; Return to caller instead of infinite loop
+    POP {LR, R4-R11}
+    BX LR
 
-; Initialize ITM (Instrumentation Trace Macrocell)
-init_itm
-    PUSH {R0-R1, LR}
+; ============================================
+; Print summary for a specific patient
+; R0 = patient number (1-3)
+; ============================================
+print_patient_summary
+    PUSH {LR, R4-R11}
+    MOV R4, R0          ; Save patient number
     
-    ; Unlock ITM (if locked)
-    LDR R0, =0xE0000FB0      ; ITM Lock Access Register
-    LDR R1, =0xC5ACCE55      ; Unlock key
-    STR R1, [R0]
+    ; Print header
+    BL print_newline
+    MOV R0, #'='
+    MOV R1, #40
+    BL print_repeat_char
+    BL print_newline
     
-    ; Enable ITM
-    LDR R0, =ITM_TCR         ; Trace Control Register
-    LDR R1, [R0]
-    ORR R1, R1, #0x00000001  ; Set ITMENA bit
-    STR R1, [R0]
+    ; Print "PATIENT SUMMARY"
+    MOV R0, #'P'
+    BL debug_send
+    MOV R0, #'A'
+    BL debug_send
+    MOV R0, #'T'
+    BL debug_send
+    MOV R0, #'I'
+    BL debug_send
+    MOV R0, #'E'
+    BL debug_send
+    MOV R0, #'N'
+    BL debug_send
+    MOV R0, #'T'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
     
-    ; Enable stimulus port 0
-    LDR R0, =ITM_TER0        ; Trace Enable Register
-    MOV R1, #0x00000001      ; Enable port 0
-    STR R1, [R0]
+    ; Print patient number
+    MOV R0, R4
+    ADD R0, R0, #'0'
+    BL debug_send
     
-    ; Set privilege level (allow user access)
-    LDR R0, =ITM_TPR         ; Trace Privilege Register
-    MOV R1, #0x00000000      ; Allow all privilege levels
-    STR R1, [R0]
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #'S'
+    BL debug_send
+    MOV R0, #'U'
+    BL debug_send
+    MOV R0, #'M'
+    BL debug_send
+    MOV R0, #'M'
+    BL debug_send
+    MOV R0, #'A'
+    BL debug_send
+    MOV R0, #'R'
+    BL debug_send
+    MOV R0, #'Y'
+    BL debug_send
+    BL print_newline
     
-    POP {R0-R1, PC}
-
-print_summary
-    PUSH {LR}
+    MOV R0, #'='
+    MOV R1, #40
+    BL print_repeat_char
+    BL print_newline
     
-    ; Print title
-    LDR R0, =title
+    ; Print Name
+    BL print_name
+    MOV R0, R4
+    BL get_patient_name
     BL print_string
+    BL print_newline
     
-    LDR R0, =sep
-    BL print_string
+    ; Print ID
+    BL print_id
+    MOV R0, R4
+    BL get_patient_id
+    BL print_hex
+    BL print_newline
     
-    ; Print Patient Name
-    LDR R0, =name_str
-    BL print_string
-    LDR R0, =patient1_name
-    BL print_string
-    LDR R0, =newline
-    BL print_string
+    ; Print Latest Vitals
+    BL print_vitals_header
+    BL print_newline
     
-    ; Print Patient ID
-    LDR R0, =id_str
-    BL print_string
-    LDR R0, =patient_id1
-    LDR R0, [R0]
-    BL print_hex_number
-    LDR R0, =newline
-    BL print_string
+    ; Print HR
+    BL print_hr
+    MOV R0, R4
+    BL get_patient_hr
+    BL print_number
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #'b'
+    BL debug_send
+    MOV R0, #'p'
+    BL debug_send
+    MOV R0, #'m'
+    BL debug_send
+    BL print_newline
+    
+    ; Print BP
+    BL print_bp
+    MOV R0, R4
+    BL get_patient_bp
+    BL print_number
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #'m'
+    BL debug_send
+    MOV R0, #'m'
+    BL debug_send
+    MOV R0, #'H'
+    BL debug_send
+    MOV R0, #'g'
+    BL debug_send
+    BL print_newline
+    
+    ; Print O2
+    BL print_o2
+    MOV R0, R4
+    BL get_patient_o2
+    BL print_number
+    MOV R0, #'%'
+    BL debug_send
+    BL print_newline
     
     ; Print Alert Count
-    LDR R0, =alert_str
-    BL print_string
-    LDR R0, =patient_alert_count1
-    LDR R0, [R0]
+    BL print_alerts
+    MOV R0, R4
+    BL get_patient_alert_count
     BL print_number
-    LDR R0, =newline
-    BL print_string
+    BL print_newline
     
-    ; Print billing header
-    LDR R0, =newline
-    BL print_string
-    LDR R0, =bill_str
-    BL print_string
-    
-    ; Print Treatment Cost
-    LDR R0, =treat_str
-    BL print_string
-    LDR R0, =TREATMENT_COST
-    LDR R0, [R0]
-    BL print_bill_amount
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print Room Cost
-    LDR R0, =room_str
-    BL print_string
-    LDR R0, =ROOM_COST
-    LDR R0, [R0]
-    BL print_bill_amount
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print Medicine Cost
-    LDR R0, =med_str
-    BL print_string
-    LDR R0, =MEDICINE_COST
-    LDR R0, [R0]
-    BL print_bill_amount
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print Lab Test Cost
-    LDR R0, =lab_str
-    BL print_string
-    LDR R0, =LABTEST_COST
-    LDR R0, [R0]
-    BL print_bill_amount
-    LDR R0, =newline
-    BL print_string
-    
-    ; Print Total Bill
-    LDR R0, =total_str
-    BL print_string
+    ; Print Total Bill (same for all patients from module 8)
+    BL print_bill
     LDR R0, =TOTAL_BILL
     LDR R0, [R0]
     BL print_bill_amount
+    BL print_newline
     
-    POP {PC}
+    MOV R0, #'='
+    MOV R1, #40
+    BL print_repeat_char
+    BL print_newline
+    
+    POP {LR, R4-R11}
+    BX LR
 
-; Print bill amount as dollars.cents
-; R0 = amount in cents
-print_bill_amount
-    PUSH {R0-R5, LR}
-    
-    ; Get dollars (divide by 100)
-    MOV R1, #100
-    MOV R2, R0          ; Save original
-    MOV R3, #0          ; Counter for dollars
-    
-dollar_loop
-    CMP R2, R1
-    BLT dollars_done
-    SUB R2, R2, R1      ; Subtract 100 cents
-    ADD R3, R3, #1      ; Count dollars
-    B dollar_loop
-    
-dollars_done
-    ; R3 = dollars, R2 = remaining cents
-    
-    ; Print dollars
-    MOV R0, R3
-    BL print_number
-    
-    ; Print decimal point
-    MOV R0, #'.'
-    BL send_char
-    
-    ; Print cents (always 2 digits)
-    MOV R0, R2
-    CMP R0, #10
-    BGE print_two_digits
-    
-    ; Print leading zero
-    MOV R0, #'0'
-    BL send_char
-    
-    ; Print cents digit
-    MOV R0, R2
-    ADD R0, R0, #'0'
-    BL send_char
-    B cents_done
-    
-print_two_digits
-    ; R0 has cents (10-99)
-    MOV R4, R0          ; Save cents
-    MOV R5, #10         ; Divisor
-    
-    ; Get tens digit
-    MOV R1, R5
-    BL divide_simple    ; R0 = tens digit
-    MOV R3, R0          ; Save tens digit
-    
-    ; Print tens digit
-    ADD R0, R3, #'0'
-    BL send_char
-    
-    ; Calculate ones digit: cents - (tens * 10)
-    MOV R0, R3
-    MUL R0, R0, R5      ; tens * 10
-    SUB R0, R4, R0      ; cents - (tens * 10)
-    
-    ; Print ones digit
-    ADD R0, R0, #'0'
-    BL send_char
-    
-cents_done
-    POP {R0-R5, PC}
+; ============================================
+; Data access functions
+; ============================================
 
-; SIMPLIFIED: Print a decimal number (0-9999)
-; R0 = number to print
-print_number
-    PUSH {R0-R5, LR}
+; Get patient name address
+; R0 = patient number (1-3)
+; Returns: R0 = address of name string
+get_patient_name
+    CMP R0, #1
+    BNE check_patient2_name
+    LDR R0, =patient1_name
+    BX LR
     
-    ; Check if zero
+check_patient2_name
+    CMP R0, #2
+    BNE patient3_name_fun
+    LDR R0, =patient2_name
+    BX LR
+    
+patient3_name_fun
+    LDR R0, =patient3_name
+    BX LR
+
+; Get patient ID
+; R0 = patient number (1-3)
+; Returns: R0 = patient ID value
+get_patient_id
+    CMP R0, #1
+    BNE check_patient2_id
+    LDR R0, =patient_id1
+    LDR R0, [R0]
+    BX LR
+    
+check_patient2_id
+    CMP R0, #2
+    BNE patient3_id
+    LDR R0, =patient_id2
+    LDR R0, [R0]
+    BX LR
+    
+patient3_id
+    LDR R0, =patient_id3
+    LDR R0, [R0]
+    BX LR
+
+; Get patient alert count
+; R0 = patient number (1-3)
+; Returns: R0 = alert count
+get_patient_alert_count
+    CMP R0, #1
+    BNE check_patient2_alerts
+    LDR R0, =patient_alert_count1
+    LDR R0, [R0]
+    BX LR
+    
+check_patient2_alerts
+    CMP R0, #2
+    BNE patient3_alerts
+    LDR R0, =patient_alert_count2
+    LDR R0, [R0]
+    BX LR
+    
+patient3_alerts
+    LDR R0, =patient_alert_count3
+    LDR R0, [R0]
+    BX LR
+
+; Get patient HR
+; R0 = patient number (1-3)
+; Returns: R0 = HR value
+get_patient_hr
+    CMP R0, #1
+    BNE check_patient2_hr
+    LDR R0, =HR1_data
+    LDR R0, [R0]
+    BX LR
+    
+check_patient2_hr
+    CMP R0, #2
+    BNE patient3_hr
+    LDR R0, =HR2_data
+    LDR R0, [R0]
+    BX LR
+    
+patient3_hr
+    LDR R0, =HR3_data
+    LDR R0, [R0]
+    BX LR
+
+; Get patient BP
+; R0 = patient number (1-3)
+; Returns: R0 = BP value
+get_patient_bp
+    CMP R0, #1
+    BNE check_patient2_bp
+    LDR R0, =BP1_data
+    LDR R0, [R0]
+    BX LR
+    
+check_patient2_bp
+    CMP R0, #2
+    BNE patient3_bp
+    LDR R0, =BP2_data
+    LDR R0, [R0]
+    BX LR
+    
+patient3_bp
+    LDR R0, =BP3_data
+    LDR R0, [R0]
+    BX LR
+
+; Get patient O2
+; R0 = patient number (1-3)
+; Returns: R0 = O2 value
+get_patient_o2
+    CMP R0, #1
+    BNE check_patient2_o2
+    LDR R0, =O21_data
+    LDR R0, [R0]
+    BX LR
+    
+check_patient2_o2
+    CMP R0, #2
+    BNE patient3_o2
+    LDR R0, =O22_data
+    LDR R0, [R0]
+    BX LR
+    
+patient3_o2
+    LDR R0, =O23_data
+    LDR R0, [R0]
+    BX LR
+
+; ============================================
+; Label printing functions
+; ============================================
+
+print_name
+    PUSH {R0, LR}
+    MOV R0, #'N'
+    BL debug_send
+    MOV R0, #'a'
+    BL debug_send
+    MOV R0, #'m'
+    BL debug_send
+    MOV R0, #'e'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    POP {R0, PC}
+
+print_id
+    PUSH {R0, LR}
+    MOV R0, #'I'
+    BL debug_send
+    MOV R0, #'D'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    POP {R0, PC}
+
+print_vitals_header
+    PUSH {R0, LR}
+    MOV R0, #'V'
+    BL debug_send
+    MOV R0, #'i'
+    BL debug_send
+    MOV R0, #'t'
+    BL debug_send
+    MOV R0, #'a'
+    BL debug_send
+    MOV R0, #'l'
+    BL debug_send
+    MOV R0, #'s'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    POP {R0, PC}
+
+print_hr
+    PUSH {R0, LR}
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #'H'
+    BL debug_send
+    MOV R0, #'R'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    POP {R0, PC}
+
+print_bp
+    PUSH {R0, LR}
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #'B'
+    BL debug_send
+    MOV R0, #'P'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    POP {R0, PC}
+
+print_o2
+    PUSH {R0, LR}
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #'O'
+    BL debug_send
+    MOV R0, #'2'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    POP {R0, PC}
+
+print_alerts
+    PUSH {R0, LR}
+    MOV R0, #'A'
+    BL debug_send
+    MOV R0, #'l'
+    BL debug_send
+    MOV R0, #'e'
+    BL debug_send
+    MOV R0, #'r'
+    BL debug_send
+    MOV R0, #'t'
+    BL debug_send
+    MOV R0, #'s'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    POP {R0, PC}
+
+print_bill
+    PUSH {R0, LR}
+    MOV R0, #'B'
+    BL debug_send
+    MOV R0, #'i'
+    BL debug_send
+    MOV R0, #'l'
+    BL debug_send
+    MOV R0, #'l'
+    BL debug_send
+    MOV R0, #':'
+    BL debug_send
+    MOV R0, #' '
+    BL debug_send
+    MOV R0, #'$'
+    BL debug_send
+    POP {R0, PC}
+
+; ============================================
+; Utility functions
+; ============================================
+
+print_newline
+    PUSH {R0, LR}
+    MOV R0, #'\r'
+    BL debug_send
+    MOV R0, #'\n'
+    BL debug_send
+    POP {R0, PC}
+
+print_repeat_char
+    ; R0 = character, R1 = count
+    PUSH {R0-R2, LR}
+    MOV R2, R1
+repeat_loop
+    CMP R2, #0
+    BEQ repeat_done
+    BL debug_send
+    SUBS R2, R2, #1
+    B repeat_loop
+repeat_done
+    POP {R0-R2, PC}
+
+print_string
+    PUSH {R0-R1, LR}
+    MOV R1, R0
+str_loop
+    LDRB R0, [R1], #1
     CMP R0, #0
-    BNE not_zero
-    
-    MOV R0, #'0'
-    BL send_char
-    B number_done
-    
-not_zero
-    ; For simplicity, handle numbers up to 9999 with manual checking
-    CMP R0, #1000
-    BGE handle_1000_to_9999
-    CMP R0, #100
-    BGE handle_100_to_999
-    CMP R0, #10
-    BGE handle_10_to_99
-    
-    ; Single digit (1-9)
-    ADD R0, R0, #'0'
-    BL send_char
-    B number_done
-    
-handle_10_to_99
-    ; Two digits (10-99)
-    MOV R4, R0          ; Save number
-    MOV R1, #10
-    BL divide_simple    ; R0 = tens digit
-    MOV R5, R0          ; Save tens digit
-    ADD R0, R5, #'0'
-    BL send_char
-    
-    ; Get ones digit
-    MOV R0, R5
-    MOV R1, #10
-    MUL R0, R0, R1      ; tens * 10
-    SUB R0, R4, R0      ; remainder = ones digit
-    ADD R0, R0, #'0'
-    BL send_char
-    B number_done
-    
-handle_100_to_999
-    ; Three digits (100-999)
-    MOV R4, R0          ; Save number
-    MOV R1, #100
-    BL divide_simple    ; R0 = hundreds digit
-    MOV R5, R0          ; Save hundreds digit
-    ADD R0, R5, #'0'
-    BL send_char
-    
-    ; Get remaining two digits
-    MOV R0, R5
-    MOV R1, #100
-    MUL R0, R0, R1      ; hundreds * 100
-    SUB R0, R4, R0      ; remainder (0-99)
-    
-    ; Print remainder as two-digit number
-    MOV R4, R0          ; Save remainder
-    MOV R1, #10
-    BL divide_simple    ; R0 = tens digit
-    MOV R5, R0          ; Save tens digit
-    ADD R0, R5, #'0'
-    BL send_char
-    
-    ; Get ones digit
-    MOV R0, R5
-    MOV R1, #10
-    MUL R0, R0, R1      ; tens * 10
-    SUB R0, R4, R0      ; remainder = ones digit
-    ADD R0, R0, #'0'
-    BL send_char
-    B number_done
-    
-handle_1000_to_9999
-    ; Four digits (1000-9999)
-    MOV R4, R0          ; Save number
-    MOV R1, #1000
-    BL divide_simple    ; R0 = thousands digit
-    MOV R5, R0          ; Save thousands digit
-    ADD R0, R5, #'0'
-    BL send_char
-    
-    ; Get remaining three digits
-    MOV R0, R5
-    MOV R1, #1000
-    MUL R0, R0, R1      ; thousands * 1000
-    SUB R0, R4, R0      ; remainder (0-999)
-    
-    ; Save and recursively print remainder
-    PUSH {R0}
-    MOV R0, R0
-    BL print_number     ; Recursive call for remainder
-    POP {R0}
-    
-number_done
-    POP {R0-R5, PC}
+    BEQ str_done
+    BL debug_send
+    B str_loop
+str_done
+    POP {R0-R1, PC}
 
-; Print hex number (for patient ID)
-; R0 = hex number to print
-print_hex_number
+print_hex
     PUSH {R0-R4, LR}
+    MOV R4, #28
     
-    ; Print "0x" prefix
+    ; Print "0x"
     MOV R0, #'0'
-    BL send_char
+    BL debug_send
     MOV R0, #'x'
-    BL send_char
+    BL debug_send
     
-    MOV R4, #28         ; Start with most significant nibble
+    MOV R3, R0          ; Save original value
     
 hex_loop
-    MOV R3, R0          ; Copy to R3
-    LSR R3, R4          ; Shift to get current nibble
-    AND R3, R3, #0xF    ; Mask to get 4 bits
+    MOV R2, R3
+    LSR R2, R4
+    AND R2, R2, #0xF
     
-    ; Convert to ASCII
-    CMP R3, #9
-    BGT hex_letter
-    ADD R3, #'0'
-    B print_hex_char
+    CMP R2, #9
+    BGT hex_alpha
+    ADD R2, #'0'
+    B print_hex_digit
     
-hex_letter
-    SUB R3, #10
-    ADD R3, #'A'
+hex_alpha
+    SUB R2, #10
+    ADD R2, #'A'
     
-print_hex_char
-    MOV R0, R3
-    BL send_char
+print_hex_digit
+    MOV R0, R2
+    BL debug_send
     
     SUBS R4, #4
     BPL hex_loop
     
     POP {R0-R4, PC}
 
-; Simple divide: R0 / R1, result in R0
+print_number
+    PUSH {R0-R2, LR}
+    
+    CMP R0, #0
+    BNE not_zero
+    
+    MOV R0, #'0'
+    BL debug_send
+    B number_done
+    
+not_zero
+    ; Handle up to 3 digits (vitals are 0-999)
+    MOV R1, R0
+    MOV R2, #100
+    
+    CMP R1, R2
+    BLT less_than_100
+    
+    ; Hundreds digit
+    MOV R0, R1
+    BL divide_simple
+    ADD R0, R0, #'0'
+    BL debug_send
+    
+    ; Update remainder
+    MOV R2, #100
+    MUL R2, R0, R2
+    SUB R1, R1, R2
+    
+less_than_100
+    MOV R2, #10
+    CMP R1, R2
+    BLT less_than_10
+    
+    ; Tens digit
+    MOV R0, R1
+    MOV R1, #10
+    BL divide_simple
+    ADD R0, R0, #'0'
+    BL debug_send
+    
+    ; Ones digit
+    MOV R0, R1          ; Remainder
+    ADD R0, R0, #'0'
+    BL debug_send
+    B number_done
+    
+less_than_10
+    ; Single digit
+    MOV R0, R1
+    ADD R0, R0, #'0'
+    BL debug_send
+    
+number_done
+    POP {R0-R2, PC}
+
+print_bill_amount
+    PUSH {R0-R4, LR}
+    
+    ; R0 = cents
+    MOV R4, R0
+    
+    ; Dollars = cents / 100
+    MOV R1, #100
+    BL divide_simple    ; R0 = dollars
+    BL print_number
+    
+    ; Decimal point
+    MOV R0, #'.'
+    BL debug_send
+    
+    ; Cents remainder
+    MOV R0, R4
+    MOV R1, #100
+    BL divide_simple    ; R0 = dollars, R1 = remainder
+    
+    ; Ensure 2 digits
+    MOV R0, R1
+    CMP R0, #10
+    BGE two_digits_cents
+    
+    ; Leading zero
+    MOV R0, #'0'
+    BL debug_send
+    
+    ; Ones digit
+    MOV R0, R1
+    ADD R0, R0, #'0'
+    BL debug_send
+    B bill_amount_done
+    
+two_digits_cents
+    MOV R0, R1
+    BL print_number
+    
+bill_amount_done
+    POP {R0-R4, PC}
+
 divide_simple
     PUSH {R2}
     MOV R2, #0
-div_loop
+divide_loop
     CMP R0, R1
-    BLT div_done
+    BLT divide_done
     SUB R0, R0, R1
     ADD R2, R2, #1
-    B div_loop
-div_done
-    MOV R0, R2
+    B divide_loop
+divide_done
+    MOV R1, R0          ; Remainder
+    MOV R0, R2          ; Quotient
     POP {R2}
     BX LR
-
-; Print string
-print_string
-    PUSH {R0-R2, LR}
-    MOV R1, R0
-str_loop
-    LDRB R0, [R1], #1
-    CMP R0, #0
-    BEQ str_done
-    BL send_char
-    B str_loop
-str_done
-    POP {R0-R2, PC}
-
-; Send one character to ITM
-send_char
-    PUSH {R1-R2, LR}
-    LDR R1, =ITM_PORT0
-    
-wait_fifo
-    LDR R2, =0xE0000E7C  ; ITM Port 31 (status port)
-    LDR R2, [R2]
-    ANDS R2, R2, #1      ; Check bit 0 (FIFO full)
-    BNE wait_fifo        ; Wait if FIFO is full
-    
-    STR R0, [R1]
-    
-    MOV R2, #0x100
-delay_loop
-    SUBS R2, R2, #1
-    BNE delay_loop
-    
-    POP {R1-R2, PC}
 
     END

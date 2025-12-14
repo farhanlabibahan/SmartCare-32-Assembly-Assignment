@@ -1,11 +1,12 @@
-		AREA myData, DATA, READWRITE
-ERROR_FLAG DCD 0
+        AREA myData, DATA, READWRITE
+; ERROR_FLAG DCD 0  ; ❌ REMOVE - already defined in data.s
 error_code DCD 0
 hr_data    DCD 80, 80, 80, 80, 80
 dosage     DCD 0
 
         AREA |.text|, CODE, READONLY
         EXPORT module_eleven
+        IMPORT ERROR_FLAG    ; ✓ Import from data.s instead
         
 module_eleven
     ; Check 1: Sensor
