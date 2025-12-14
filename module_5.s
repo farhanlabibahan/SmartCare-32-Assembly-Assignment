@@ -31,7 +31,7 @@ module_five
         BL      Compute_Treatment_Cost
 
 STOP
-        B       STOP                    ; hold program here
+        BX LR                 ; hold program here
 
 
 ; ---------------------------------------------------------

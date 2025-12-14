@@ -19,7 +19,7 @@ module_eight
         BL      Compute_Total_Bill
 
 STOP
-        B       STOP
+        BX LR
 
 ;FUNCTION
 Compute_Total_Bill

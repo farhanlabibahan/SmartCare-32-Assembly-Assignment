@@ -4,10 +4,9 @@ error_code DCD 0
 hr_data    DCD 80, 80, 80, 80, 80
 dosage     DCD 0
 
-		AREA |.text|, CODE, READONLY
-		EXPORT module_eleven
-		
-
+        AREA |.text|, CODE, READONLY
+        EXPORT module_eleven
+        
 module_eleven
     ; Check 1: Sensor
     LDR R0, =hr_data
@@ -32,12 +31,12 @@ check_memory
     MOV R0, SP
     LDR R1, =0x20010000
     CMP R0, R1
-    BLT done
+    BLT all_checks_done
     MOV R0, #3
     BL set_error
     
-done
-    B done
+all_checks_done
+    BX LR                ; Return to caller
 
 set_error
     LDR R1, =error_code

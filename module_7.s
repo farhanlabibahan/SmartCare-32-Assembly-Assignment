@@ -29,7 +29,7 @@ module_seven
         BL      Compute_Medicine_Bill
 
 STOP
-        B       STOP
+        BX LR
         
 
 ;       med_cost = price�qty�days

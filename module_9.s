@@ -103,6 +103,6 @@ next_iteration
     ; R6/R9 = highest alert count with its patient ID (most critical)
     ; R8/R11 = lowest alert count with its patient ID (least critical)
     
-    B .
+    BX LR
     
     END

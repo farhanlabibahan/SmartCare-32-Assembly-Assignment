@@ -16,7 +16,7 @@ module_six
         BL      Calc_Room_Rent
 
 STOP
-        B       STOP               ; infinite loop for debugging
+        BX LR           ; infinite loop for debugging
 
 ;Calc_Room_Rent
 Calc_Room_Rent

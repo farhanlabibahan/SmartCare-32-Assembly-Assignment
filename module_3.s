@@ -75,7 +75,7 @@ module_three
     
     ; Module 9 can sort these: Patient3 > Patient1 > Patient2
     
-    B .
+    BX LR
 
 ; ============================================
 ; Check vitals for specific patient

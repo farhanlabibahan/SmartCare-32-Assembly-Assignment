@@ -16,7 +16,7 @@ module_four
         BL      Compute_Dosage   ;CALL FUNCTION
 
 STOP
-        B       STOP             ;hold execution so we can see memory
+        BX LR            ;hold execution so we can see memory
 
 
 ;Update Clock

@@ -61,7 +61,7 @@ module_two
     BL read_all_patients    ; Changed from read_both_patients
 
 stop
-    B stop
+    BX LR
 
 
 ; Read all patients
