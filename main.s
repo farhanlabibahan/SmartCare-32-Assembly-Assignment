@@ -7,12 +7,11 @@
         IMPORT  get_patient1
         IMPORT  get_patient2
         IMPORT  get_patient3
-		; IMPORT FROM MODULE 02
+		; IMPORT FROM MODULE 02-11
 		IMPORT	module_two
-		; IMPORT FROM MODULE 03
 		IMPORT	module_three
-		; IMPORT FROM MODULE 09
 		IMPORT	module_nine
+		IMPORT 	module_five
 		
 
 main
@@ -27,6 +26,9 @@ main
 		
 		; MODULE 09
 		BL		module_nine
+		
+		; MODULE 05
+		BL		module_five
         
         
         

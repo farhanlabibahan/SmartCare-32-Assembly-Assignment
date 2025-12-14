@@ -166,4 +166,16 @@ patient_alert_count3 DCD 0
         EXPORT SBP_HIGH_THRESHOLD
         EXPORT SBP_LOW_THRESHOLD
 
+
+        ; Module 05 : Treatment Codes and Costs
+
+TREATMENT_CODE    DCD     11     ; input value will be stored here
+TREATMENT_COST    DCD     0       ; output cost will be stored here
+
+        EXPORT TREATMENT_CODE
+        EXPORT TREATMENT_COST
+
+
+
+
         END

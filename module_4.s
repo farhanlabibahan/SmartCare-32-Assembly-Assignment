@@ -1,10 +1,12 @@
         AREA    MedSCHED, CODE, READONLY
-        EXPORT  main
+        EXPORT  module_four
         EXPORT  Update_Clock
         EXPORT  Compute_Dosage
-        ENTRY
+        IMPORT TREATMENT_CODE
+        IMPORT TREATMENT_COST
+        IMPORT TREATMENT_TABLE
 
-main
+module_four
         
         LDR     r0, =MED1_LAST
         LDR     r1, =MED1_INTERVAL
