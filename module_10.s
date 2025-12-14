@@ -33,7 +33,7 @@ newline         DCB "\r\n", 0
 
         AREA |.text|, CODE, READONLY
         EXPORT module_ten
-        ENTRY
+        ; REMOVE: ENTRY  <-- This is important!
 
 module_ten
     ; Initialize ITM for debug output
@@ -42,8 +42,7 @@ module_ten
     ; Generate summary for Patient 1
     BL print_summary
     
-stop
-    B stop
+    BX LR    ; Return to caller instead of infinite loop
 
 ; Initialize ITM (Instrumentation Trace Macrocell)
 init_itm
@@ -228,10 +227,10 @@ print_two_digits
 cents_done
     POP {R0-R5, PC}
 
-; Print a decimal number (0-9999)
+; SIMPLIFIED: Print a decimal number (0-9999)
 ; R0 = number to print
 print_number
-    PUSH {R0-R4, LR}
+    PUSH {R0-R5, LR}
     
     ; Check if zero
     CMP R0, #0
@@ -242,45 +241,92 @@ print_number
     B number_done
     
 not_zero
-    ; Convert number to ASCII digits
-    MOV R1, SP
-    SUB SP, SP, #16     ; Reserve space for 16 digits
-    MOV R2, SP
-    MOV R3, #0          ; Digit count
+    ; For simplicity, handle numbers up to 9999 with manual checking
+    CMP R0, #1000
+    BGE handle_1000_to_9999
+    CMP R0, #100
+    BGE handle_100_to_999
+    CMP R0, #10
+    BGE handle_10_to_99
     
-convert_loop
-    MOV R4, #10
-    BL divide_simple    ; R0 = quotient, remainder in R1?
-    
-    ; Get remainder
-    MOV R1, R0          ; Save quotient
-    MOV R0, R4          ; Original number
-    MOV R10,#10
-    MUL R4, R1, R10     ; quotient * 10
-    SUB R0, R0, R4      ; remainder
-    
-    ; Store digit
+    ; Single digit (1-9)
     ADD R0, R0, #'0'
-    STRB R0, [R2], #1
-    ADD R3, R3, #1
-    
-    ; Next digit
-    MOV R0, R1
-    CMP R0, #0
-    BNE convert_loop
-    
-    ; Print digits in reverse order
-print_digits
-    SUB R2, R2, #1
-    LDRB R0, [R2]
     BL send_char
-    SUBS R3, R3, #1
-    BNE print_digits
+    B number_done
     
-    ADD SP, SP, #16     ; Clean up stack
+handle_10_to_99
+    ; Two digits (10-99)
+    MOV R4, R0          ; Save number
+    MOV R1, #10
+    BL divide_simple    ; R0 = tens digit
+    MOV R5, R0          ; Save tens digit
+    ADD R0, R5, #'0'
+    BL send_char
+    
+    ; Get ones digit
+    MOV R0, R5
+    MOV R1, #10
+    MUL R0, R0, R1      ; tens * 10
+    SUB R0, R4, R0      ; remainder = ones digit
+    ADD R0, R0, #'0'
+    BL send_char
+    B number_done
+    
+handle_100_to_999
+    ; Three digits (100-999)
+    MOV R4, R0          ; Save number
+    MOV R1, #100
+    BL divide_simple    ; R0 = hundreds digit
+    MOV R5, R0          ; Save hundreds digit
+    ADD R0, R5, #'0'
+    BL send_char
+    
+    ; Get remaining two digits
+    MOV R0, R5
+    MOV R1, #100
+    MUL R0, R0, R1      ; hundreds * 100
+    SUB R0, R4, R0      ; remainder (0-99)
+    
+    ; Print remainder as two-digit number
+    MOV R4, R0          ; Save remainder
+    MOV R1, #10
+    BL divide_simple    ; R0 = tens digit
+    MOV R5, R0          ; Save tens digit
+    ADD R0, R5, #'0'
+    BL send_char
+    
+    ; Get ones digit
+    MOV R0, R5
+    MOV R1, #10
+    MUL R0, R0, R1      ; tens * 10
+    SUB R0, R4, R0      ; remainder = ones digit
+    ADD R0, R0, #'0'
+    BL send_char
+    B number_done
+    
+handle_1000_to_9999
+    ; Four digits (1000-9999)
+    MOV R4, R0          ; Save number
+    MOV R1, #1000
+    BL divide_simple    ; R0 = thousands digit
+    MOV R5, R0          ; Save thousands digit
+    ADD R0, R5, #'0'
+    BL send_char
+    
+    ; Get remaining three digits
+    MOV R0, R5
+    MOV R1, #1000
+    MUL R0, R0, R1      ; thousands * 1000
+    SUB R0, R4, R0      ; remainder (0-999)
+    
+    ; Save and recursively print remainder
+    PUSH {R0}
+    MOV R0, R0
+    BL print_number     ; Recursive call for remainder
+    POP {R0}
     
 number_done
-    POP {R0-R4, PC}
+    POP {R0-R5, PC}
 
 ; Print hex number (for patient ID)
 ; R0 = hex number to print
