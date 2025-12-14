@@ -1,9 +1,20 @@
+           AREA    MedicineBilling_DATA, DATA, READWRITE
+        ALIGN   4
+
+MED_LIST
+        DCD     10,  2, 3       ; med1 = 10ï¿½2ï¿½3=60
+        DCD     50,  1, 5       ; med2 = 50ï¿½1ï¿½5=250
+        DCD     20,  3, 2       ; med3 = 20ï¿½3ï¿½2=120
+
+NUM_MEDS        DCD     3
+
         AREA    MedicineBilling, CODE, READONLY
-        EXPORT  main
+        EXPORT  module_seven
         EXPORT  Compute_Medicine_Bill
+        IMPORT  TOTAL_MED_COST
         ENTRY
 
-main
+module_seven
         ;Load pointer to medicine list
         LDR     r0, =MED_LIST
 
@@ -21,7 +32,7 @@ STOP
         B       STOP
         
 
-;       med_cost = price×qty×days
+;       med_cost = priceï¿½qtyï¿½days
 ;       total += med_cost
 
 Compute_Medicine_Bill
@@ -35,7 +46,7 @@ Loop_Start
         CMP     r4, r1
         BGE     Finish
 
-        ;Each medicine is 12 bytes-(3×4B)
+        ;Each medicine is 12 bytes-(3ï¿½4B)
         MOV     r5, #12            
         MUL     r6, r4, r5         ; r6 =i*12
         ADD     r6, r6, r0         ; r6 =&MED_LIST[i]
@@ -45,9 +56,9 @@ Loop_Start
         LDR     r5, [r6, #4]       ;quantity
         LDR     r3, [r6, #8]       ;days
 
-        ; med_cost=price×qty×days
-        MUL     r8, r8, r5         ;price×qty
-        MUL     r8, r8, r3         ;(price×qty)×days
+        ; med_cost=priceï¿½qtyï¿½days
+        MUL     r8, r8, r5         ;priceï¿½qty
+        MUL     r8, r8, r3         ;(priceï¿½qty)ï¿½days
 
         ; total_cost += med_cost
         ADD     r7, r7, r8
@@ -64,16 +75,7 @@ Finish
         POP     {r4-r8, pc}
 
 ; DATA SECTION (INPUT + OUTPUT)
-        AREA    MedicineBilling_DATA, DATA, READWRITE
-        ALIGN   4
+    
 
-MED_LIST
-        DCD     10,  2, 3       ; med1 = 10×2×3=60
-        DCD     50,  1, 5       ; med2 = 50×1×5=250
-        DCD     20,  3, 2       ; med3 = 20×3×2=120
-
-NUM_MEDS        DCD     3
-
-TOTAL_MED_COST  DCD     0        ;total result will be written here
 
         END

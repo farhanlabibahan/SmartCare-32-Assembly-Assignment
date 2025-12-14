@@ -176,6 +176,34 @@ TREATMENT_COST    DCD     0       ; output cost will be stored here
         EXPORT TREATMENT_COST
 
 
+        ; Module 06 : Room Rent 
+
+ROOM_RATE       DCD     15      ; YOU SET THIS IN MEMORY WINDOW
+DAYS_STAYED     DCD     5      ; YOU SET THIS IN MEMORY WINDOW
+ROOM_COST       SPACE   4      ; OUTPUT WRITTEN HERE
+
+        EXPORT ROOM_COST
+        EXPORT DAYS_STAYED
+        EXPORT ROOM_RATE
+
+        ; Module 07: COST
+
+TOTAL_MED_COST  SPACE   4
+
+        EXPORT TOTAL_MED_COST
+
+
+        ; Module 08 : Final Bill
+
+MEDICINE_COST    DCD  500    ; INPUT
+LABTEST_COST     DCD  700    ; INPUT
+TOTAL_BILL       DCD  0      ; OUTPUT
+ERROR_FLAG       DCD  0      ; OUTPUT
+
+        EXPORT MEDICINE_COST
+        EXPORT LABTEST_COST
+        EXPORT TOTAL_BILL
+        EXPORT ERROR_FLAG
 
 
         END

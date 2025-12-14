@@ -1,19 +1,21 @@
+        AREA    BillData, DATA, READWRITE
+        ALIGN   4
+
+
         AREA    BillModule, CODE, READONLY
-        EXPORT  main
+        EXPORT  module_eight
         EXPORT  Compute_Total_Bill
+        IMPORT  TREATMENT_COST   
+        IMPORT  ROOM_COST    
+        IMPORT  MEDICINE_COST
+        IMPORT  LABTEST_COST
+        IMPORT  TOTAL_BILL
+        IMPORT  ERROR_FLAG
+   
         ENTRY
 
-;OFFSETS 
-TREAT_OFF   EQU     0
-ROOM_OFF    EQU     4
-MED_OFF     EQU     8
-LAB_OFF     EQU     12
-TOTAL_OFF   EQU     16
-ERR_OFF     EQU     20
-
-;MAIN 
-main
-        LDR     r0, =BILLING_BLOCK
+;module_eight 
+module_eight
         BL      Compute_Total_Bill
 
 STOP
@@ -25,45 +27,50 @@ Compute_Total_Bill
 
         ;clear error flag
         MOVS    r7, #0
-        STR     r7, [r0, #ERR_OFF]
+        LDR     r0, =ERROR_FLAG
+        STR     r7, [r0]
 
         ;load inputs from memory
-        LDR     r1, [r0, #TREAT_OFF]
-        LDR     r2, [r0, #ROOM_OFF]
-        LDR     r3, [r0, #MED_OFF]
-        LDR     r4, [r0, #LAB_OFF]
+        LDR     r0, =TREATMENT_COST
+        LDR     r1, [r0]
+        
+        LDR     r0, =ROOM_COST
+        LDR     r2, [r0]
+        
+        LDR     r0, =MEDICINE_COST
+        LDR     r3, [r0]
+        
+        LDR     r0, =LABTEST_COST
+        LDR     r4, [r0]
 
-        ;overflow check
+        ;initialize total to 0
+        MOVS    r5, #0
+
+        ;add treatment cost
         ADDS    r5, r1, r2
         BCS     overflow
 
+        ;add medicine cost
         ADDS    r5, r5, r3
         BCS     overflow
 
+        ;add lab test cost
         ADDS    r5, r5, r4
         BCS     overflow
 
         ;store result
-        STR     r5, [r0, #TOTAL_OFF]
+        LDR     r0, =TOTAL_BILL
+        STR     r5, [r0]
         POP     {r4-r7, pc}
 
 overflow
         MOVS    r7, #1
-        STR     r7, [r0, #ERR_OFF]
+        LDR     r0, =ERROR_FLAG
+        STR     r7, [r0]
+        
         MOVS    r5, #0
-        STR     r5, [r0, #TOTAL_OFF]
+        LDR     r0, =TOTAL_BILL
+        STR     r5, [r0]
         POP     {r4-r7, pc}
-
-;DATA
-        AREA    BillData, DATA, READWRITE
-        ALIGN   4
-
-BILLING_BLOCK
-TREATMENT_COST   DCD  1000   ; INPUT
-ROOM_COST        DCD  2000   ; INPUT
-MEDICINE_COST    DCD  500    ; INPUT
-LABTEST_COST     DCD  700    ; INPUT
-TOTAL_BILL       DCD  0      ; OUTPUT
-ERROR_FLAG       DCD  0      ; OUTPUT
 
         END

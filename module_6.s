@@ -1,8 +1,12 @@
         AREA    RoomBilling, CODE, READONLY
-        EXPORT  main
+        EXPORT  module_six
         EXPORT  Calc_Room_Rent
-        ENTRY
-main
+        
+        IMPORT ROOM_RATE
+        IMPORT DAYS_STAYED
+        IMPORT ROOM_COST
+
+module_six
         ; Load addresses of the 3 variables in RAM
         LDR     r0, =ROOM_RATE
         LDR     r1, =DAYS_STAYED
@@ -24,7 +28,7 @@ Calc_Room_Rent
         ;Load number of stay days
         LDR     r5, [r1]
 
-        ;room_cost=rate×days
+        ;room_cost=rateï¿½days
         MUL     r6, r4, r5
         STR     r6, [r2]           ;store initial cost
 
@@ -32,12 +36,12 @@ Calc_Room_Rent
         CMP     r5, #10
         BLE     NO_DISCOUNT
 
-        ;discount =(room_cost×5)/100
+        ;discount =(room_costï¿½5)/100
         MOV     r7, #5
-        MUL     r7, r7, r6         ; r7 =cost×5
+        MUL     r7, r7, r6         ; r7 =costï¿½5
 
         MOV     r4, #100
-        SDIV    r7, r7, r4         ; r7 =(cost×5)/100
+        SDIV    r7, r7, r4         ; r7 =(costï¿½5)/100
 
         ; Apply discount
         SUB     r6, r6, r7
@@ -46,17 +50,5 @@ Calc_Room_Rent
 NO_DISCOUNT
         POP     {r4-r7, pc}
 
-
-; DATA SECTION — INPUT from MEMORY, OUTPUT to MEMORY
-        AREA    RoomBilling_DATA, DATA, READWRITE
-        ALIGN   4
-
-        EXPORT ROOM_RATE
-        EXPORT DAYS_STAYED
-        EXPORT ROOM_COST
-
-ROOM_RATE       DCD     0      ; YOU SET THIS IN MEMORY WINDOW
-DAYS_STAYED     DCD     0      ; YOU SET THIS IN MEMORY WINDOW
-ROOM_COST       DCD     0      ; OUTPUT WRITTEN HERE
 
         END
