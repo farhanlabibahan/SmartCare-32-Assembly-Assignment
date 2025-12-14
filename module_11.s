@@ -5,10 +5,10 @@ hr_data    DCD 80, 80, 80, 80, 80
 dosage     DCD 0
 
 		AREA |.text|, CODE, READONLY
-		EXPORT main
-		ENTRY
+		EXPORT module_eleven
+		
 
-main
+module_eleven
     ; Check 1: Sensor
     LDR R0, =hr_data
     LDR R1, [R0]

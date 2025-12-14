@@ -33,7 +33,7 @@ newline         DCB "\r\n", 0
 
         AREA |.text|, CODE, READONLY
         EXPORT module_ten
-        ; REMOVE: ENTRY  <-- This is important!
+  
 
 module_ten
     ; Initialize ITM for debug output

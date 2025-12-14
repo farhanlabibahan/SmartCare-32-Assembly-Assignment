@@ -195,8 +195,8 @@ TOTAL_MED_COST  SPACE   4
 
         ; Module 08 : Final Bill
 
-MEDICINE_COST    DCD  500    ; INPUT
-LABTEST_COST     DCD  700    ; INPUT
+MEDICINE_COST    DCD  5    ; INPUT
+LABTEST_COST     DCD  7    ; INPUT
 TOTAL_BILL       DCD  0      ; OUTPUT
 ERROR_FLAG       DCD  0      ; OUTPUT
 
