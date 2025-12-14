@@ -21,7 +21,32 @@
 		
 
 main
-               
+                ; MODULE 01
+                BL      init_patients
+		
+		; MODULE 02
+		BL		module_two
+		
+		; MODULE 03
+		BL		module_three
+		
+		; MODULE 04
+		BL		module_four
+		
+		; MODULE 09
+		BL		module_nine
+		
+		; MODULE 05
+		BL		module_five
+		
+		; MODULE 06
+		BL		module_six
+		
+		; MODULE 07
+		BL		module_seven
+		
+		; MODULE 08
+		BL		module_eight
 		
 		; MODULE 10
 		BL		module_ten
