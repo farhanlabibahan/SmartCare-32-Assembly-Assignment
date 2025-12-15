@@ -5,11 +5,11 @@
 
 
 ; Patient Names
-patient1_name       DCB "Ahan", 0
+patient1_name       DCB "Shahriar Samrat", 0
                     ALIGN 4
-patient2_name       DCB "Dipa", 0
+patient2_name       DCB "Dipa Biswas", 0
                     ALIGN 4
-patient3_name       DCB "Samrat", 0
+patient3_name       DCB "Farhan Labib", 0
                     ALIGN 4
 
 PATIENT1_ADDR    EQU  0x20000000
@@ -32,12 +32,10 @@ patient2_age       DCD 42
 patient3_age       DCD 28
 
 ; Patient Ward 
-patient1_ward      DCB "ICU-A10", 0
-                    ALIGN 4
-patient2_ward      DCB "GEN-B05", 0
-                    ALIGN 4
-patient3_ward      DCB "ICU-C12", 0
-                    ALIGN 4
+patient1_ward      DCD 10
+patient2_ward      DCD 11
+patient3_ward      DCD 12
+                    
 
 ; Medicine Lists
 med_list1           DCD 0x11111111, 0x22222222

@@ -1,463 +1,159 @@
         AREA Module10, CODE, READONLY
         EXPORT module_ten
         
-        ; Import ALL available data from data.s
+        ; Import only Patient 1 data
         IMPORT patient1_name
-        IMPORT patient2_name
-        IMPORT patient3_name
         IMPORT patient_id1
-        IMPORT patient_id2
-        IMPORT patient_id3
+        IMPORT patient1_age
+        IMPORT patient1_ward
         IMPORT patient_alert_count1
-        IMPORT patient_alert_count2
-        IMPORT patient_alert_count3
-        IMPORT TOTAL_BILL
         IMPORT HR1_data
         IMPORT BP1_data
         IMPORT O21_data
-        IMPORT HR2_data
-        IMPORT BP2_data
-        IMPORT O22_data
-        IMPORT HR3_data
-        IMPORT BP3_data
-        IMPORT O23_data
-        IMPORT debug_send    ; Use your existing debug output
+        IMPORT TOTAL_BILL
+        IMPORT debug_send
 
 module_ten
     PUSH {LR, R4-R11}
     
-    ; Print summary for Patient 1
-    MOV R0, #1
-    BL print_patient_summary
+    ; Print ICU header
+    BL print_icu_header
+    
+    ; Print summary for Patient 1 only
+    BL print_patient1_summary
     
     POP {LR, R4-R11}
     BX LR
 
 ; ============================================
-; Print summary for a specific patient
-; R0 = patient number (1-3)
+; Print ICU Header
 ; ============================================
-print_patient_summary
-    PUSH {LR, R4-R11}
-    MOV R4, R0          ; Save patient number
+print_icu_header
+    PUSH {LR}
     
-    ; Print header
-    BL print_newline
-    MOV R0, #'='
-    MOV R1, #40
-    BL print_repeat_char
-    BL print_newline
-    
-    ; Print "PATIENT SUMMARY"
-    MOV R0, #'P'
-    BL debug_send
-    MOV R0, #'A'
-    BL debug_send
-    MOV R0, #'T'
-    BL debug_send
-    MOV R0, #'I'
-    BL debug_send
-    MOV R0, #'E'
-    BL debug_send
-    MOV R0, #'N'
-    BL debug_send
-    MOV R0, #'T'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    
-    ; Print patient number
-    MOV R0, R4
-    ADD R0, R0, #'0'
-    BL debug_send
-    
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #'S'
-    BL debug_send
-    MOV R0, #'U'
-    BL debug_send
-    MOV R0, #'M'
-    BL debug_send
-    MOV R0, #'M'
-    BL debug_send
-    MOV R0, #'A'
-    BL debug_send
-    MOV R0, #'R'
-    BL debug_send
-    MOV R0, #'Y'
-    BL debug_send
-    BL print_newline
-    
-    MOV R0, #'='
-    MOV R1, #40
-    BL print_repeat_char
-    BL print_newline
-    
-    ; Print Name
-    BL print_name
-    MOV R0, R4
-    BL get_patient_name
+    ; Print "ICU PATIENT SUMMARY"
+    LDR R0, =icu_header
     BL print_string
     BL print_newline
     
-    ; Print ID
-    BL print_id
-    MOV R0, R4
-    BL get_patient_id
-    BL print_hex
+    ; Print separator line
+    MOV R0, #'-'
+    MOV R1, #22
+    BL print_repeat_char
     BL print_newline
     
-    ; Print Latest Vitals
-    BL print_vitals_header
+    POP {PC}
+
+; ============================================
+; Print Patient 1 Summary
+; ============================================
+print_patient1_summary
+    PUSH {LR}
+    
+    ; Print ID
+    LDR R0, =id_label
+    BL print_string
+    LDR R0, =patient_id1
+    LDR R0, [R0]
+    BL print_number
+    BL print_newline
+    
+    ; Print Name
+    LDR R0, =name_label
+    BL print_string
+    LDR R0, =patient1_name
+    BL print_string
+    BL print_newline
+    
+    ; Print Age
+    LDR R0, =age_label
+    BL print_string
+    LDR R0, =patient1_age
+    LDR R0, [R0]
+    BL print_number
+    BL print_newline
+    
+    ; Print Ward
+    LDR R0, =ward_label
+    BL print_string
+    LDR R0, =patient1_ward
+    LDR R0, [R0]
+    BL print_number
     BL print_newline
     
     ; Print HR
-    BL print_hr
-    MOV R0, R4
-    BL get_patient_hr
+    LDR R0, =hr_label
+    BL print_string
+    LDR R0, =HR1_data
+    LDR R0, [R0]
     BL print_number
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #'b'
-    BL debug_send
-    MOV R0, #'p'
-    BL debug_send
-    MOV R0, #'m'
-    BL debug_send
     BL print_newline
     
     ; Print BP
-    BL print_bp
-    MOV R0, R4
-    BL get_patient_bp
+    LDR R0, =bp_label
+    BL print_string
+    LDR R0, =BP1_data
+    LDR R0, [R0]
     BL print_number
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #'m'
-    BL debug_send
-    MOV R0, #'m'
-    BL debug_send
-    MOV R0, #'H'
-    BL debug_send
-    MOV R0, #'g'
-    BL debug_send
     BL print_newline
     
     ; Print O2
-    BL print_o2
-    MOV R0, R4
-    BL get_patient_o2
-    BL print_number
-    MOV R0, #'%'
-    BL debug_send
-    BL print_newline
-    
-    ; Print Alert Count
-    BL print_alerts
-    MOV R0, R4
-    BL get_patient_alert_count
+    LDR R0, =o2_label
+    BL print_string
+    LDR R0, =O21_data
+    LDR R0, [R0]
     BL print_number
     BL print_newline
     
-    ; Print Total Bill (same for all patients from module 8)
-    BL print_bill
+    ; Print Alerts
+    LDR R0, =alerts_label
+    BL print_string
+    LDR R0, =patient_alert_count1
+    LDR R0, [R0]
+    BL print_number
+    BL print_newline
+    
+    ; Print Bill
+    LDR R0, =bill_label
+    BL print_string
     LDR R0, =TOTAL_BILL
     LDR R0, [R0]
     BL print_bill_amount
     BL print_newline
     
-    MOV R0, #'='
-    MOV R1, #40
+    ; Print separator
+    MOV R0, #'-'
+    MOV R1, #22
     BL print_repeat_char
     BL print_newline
     
-    POP {LR, R4-R11}
-    BX LR
+    POP {PC}
 
 ; ============================================
-; Data access functions
+; Basic Printing Functions
 ; ============================================
 
-; Get patient name address
-; R0 = patient number (1-3)
-; Returns: R0 = address of name string
-get_patient_name
-    CMP R0, #1
-    BNE check_patient2_name
-    LDR R0, =patient1_name
-    BX LR
-    
-check_patient2_name
-    CMP R0, #2
-    BNE patient3_name_fun
-    LDR R0, =patient2_name
-    BX LR
-    
-patient3_name_fun
-    LDR R0, =patient3_name
-    BX LR
-
-; Get patient ID
-; R0 = patient number (1-3)
-; Returns: R0 = patient ID value
-get_patient_id
-    CMP R0, #1
-    BNE check_patient2_id
-    LDR R0, =patient_id1
-    LDR R0, [R0]
-    BX LR
-    
-check_patient2_id
-    CMP R0, #2
-    BNE patient3_id
-    LDR R0, =patient_id2
-    LDR R0, [R0]
-    BX LR
-    
-patient3_id
-    LDR R0, =patient_id3
-    LDR R0, [R0]
-    BX LR
-
-; Get patient alert count
-; R0 = patient number (1-3)
-; Returns: R0 = alert count
-get_patient_alert_count
-    CMP R0, #1
-    BNE check_patient2_alerts
-    LDR R0, =patient_alert_count1
-    LDR R0, [R0]
-    BX LR
-    
-check_patient2_alerts
-    CMP R0, #2
-    BNE patient3_alerts
-    LDR R0, =patient_alert_count2
-    LDR R0, [R0]
-    BX LR
-    
-patient3_alerts
-    LDR R0, =patient_alert_count3
-    LDR R0, [R0]
-    BX LR
-
-; Get patient HR
-; R0 = patient number (1-3)
-; Returns: R0 = HR value
-get_patient_hr
-    CMP R0, #1
-    BNE check_patient2_hr
-    LDR R0, =HR1_data
-    LDR R0, [R0]
-    BX LR
-    
-check_patient2_hr
-    CMP R0, #2
-    BNE patient3_hr
-    LDR R0, =HR2_data
-    LDR R0, [R0]
-    BX LR
-    
-patient3_hr
-    LDR R0, =HR3_data
-    LDR R0, [R0]
-    BX LR
-
-; Get patient BP
-; R0 = patient number (1-3)
-; Returns: R0 = BP value
-get_patient_bp
-    CMP R0, #1
-    BNE check_patient2_bp
-    LDR R0, =BP1_data
-    LDR R0, [R0]
-    BX LR
-    
-check_patient2_bp
-    CMP R0, #2
-    BNE patient3_bp
-    LDR R0, =BP2_data
-    LDR R0, [R0]
-    BX LR
-    
-patient3_bp
-    LDR R0, =BP3_data
-    LDR R0, [R0]
-    BX LR
-
-; Get patient O2
-; R0 = patient number (1-3)
-; Returns: R0 = O2 value
-get_patient_o2
-    CMP R0, #1
-    BNE check_patient2_o2
-    LDR R0, =O21_data
-    LDR R0, [R0]
-    BX LR
-    
-check_patient2_o2
-    CMP R0, #2
-    BNE patient3_o2
-    LDR R0, =O22_data
-    LDR R0, [R0]
-    BX LR
-    
-patient3_o2
-    LDR R0, =O23_data
-    LDR R0, [R0]
-    BX LR
-
-; ============================================
-; Label printing functions
-; ============================================
-
-print_name
-    PUSH {R0, LR}
-    MOV R0, #'N'
+print_string
+    PUSH {R1, LR}
+    MOV R1, R0
+print_str_loop
+    LDRB R0, [R1], #1
+    CMP R0, #0
+    BEQ print_str_done
     BL debug_send
-    MOV R0, #'a'
-    BL debug_send
-    MOV R0, #'m'
-    BL debug_send
-    MOV R0, #'e'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    POP {R0, PC}
-
-print_id
-    PUSH {R0, LR}
-    MOV R0, #'I'
-    BL debug_send
-    MOV R0, #'D'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    POP {R0, PC}
-
-print_vitals_header
-    PUSH {R0, LR}
-    MOV R0, #'V'
-    BL debug_send
-    MOV R0, #'i'
-    BL debug_send
-    MOV R0, #'t'
-    BL debug_send
-    MOV R0, #'a'
-    BL debug_send
-    MOV R0, #'l'
-    BL debug_send
-    MOV R0, #'s'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    POP {R0, PC}
-
-print_hr
-    PUSH {R0, LR}
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #'H'
-    BL debug_send
-    MOV R0, #'R'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    POP {R0, PC}
-
-print_bp
-    PUSH {R0, LR}
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #'B'
-    BL debug_send
-    MOV R0, #'P'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    POP {R0, PC}
-
-print_o2
-    PUSH {R0, LR}
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #'O'
-    BL debug_send
-    MOV R0, #'2'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    POP {R0, PC}
-
-print_alerts
-    PUSH {R0, LR}
-    MOV R0, #'A'
-    BL debug_send
-    MOV R0, #'l'
-    BL debug_send
-    MOV R0, #'e'
-    BL debug_send
-    MOV R0, #'r'
-    BL debug_send
-    MOV R0, #'t'
-    BL debug_send
-    MOV R0, #'s'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    POP {R0, PC}
-
-print_bill
-    PUSH {R0, LR}
-    MOV R0, #'B'
-    BL debug_send
-    MOV R0, #'i'
-    BL debug_send
-    MOV R0, #'l'
-    BL debug_send
-    MOV R0, #'l'
-    BL debug_send
-    MOV R0, #':'
-    BL debug_send
-    MOV R0, #' '
-    BL debug_send
-    MOV R0, #'$'
-    BL debug_send
-    POP {R0, PC}
-
-; ============================================
-; Utility functions
-; ============================================
+    B print_str_loop
+print_str_done
+    POP {R1, PC}
 
 print_newline
-    PUSH {R0, LR}
+    PUSH {LR}
     MOV R0, #'\r'
     BL debug_send
     MOV R0, #'\n'
     BL debug_send
-    POP {R0, PC}
+    POP {PC}
 
 print_repeat_char
-    ; R0 = character, R1 = count
     PUSH {R0-R2, LR}
     MOV R2, R1
 repeat_loop
@@ -468,53 +164,6 @@ repeat_loop
     B repeat_loop
 repeat_done
     POP {R0-R2, PC}
-
-print_string
-    PUSH {R0-R1, LR}
-    MOV R1, R0
-str_loop
-    LDRB R0, [R1], #1
-    CMP R0, #0
-    BEQ str_done
-    BL debug_send
-    B str_loop
-str_done
-    POP {R0-R1, PC}
-
-print_hex
-    PUSH {R0-R4, LR}
-    MOV R4, #28
-    
-    ; Print "0x"
-    MOV R0, #'0'
-    BL debug_send
-    MOV R0, #'x'
-    BL debug_send
-    
-    MOV R3, R0          ; Save original value
-    
-hex_loop
-    MOV R2, R3
-    LSR R2, R4
-    AND R2, R2, #0xF
-    
-    CMP R2, #9
-    BGT hex_alpha
-    ADD R2, #'0'
-    B print_hex_digit
-    
-hex_alpha
-    SUB R2, #10
-    ADD R2, #'A'
-    
-print_hex_digit
-    MOV R0, R2
-    BL debug_send
-    
-    SUBS R4, #4
-    BPL hex_loop
-    
-    POP {R0-R4, PC}
 
 print_number
     PUSH {R0-R2, LR}
@@ -527,50 +176,58 @@ print_number
     B number_done
     
 not_zero
-    ; Handle up to 3 digits (vitals are 0-999)
     MOV R1, R0
-    MOV R2, #100
     
-    CMP R1, R2
+    ; Hundreds
+    CMP R1, #100
     BLT less_than_100
-    
-    ; Hundreds digit
     MOV R0, R1
-    BL divide_simple
-    ADD R0, R0, #'0'
-    BL debug_send
-    
-    ; Update remainder
     MOV R2, #100
-    MUL R2, R0, R2
-    SUB R1, R1, R2
+    BL simple_divide
+    MOV R2, R1          ; Save remainder
+    ADD R0, #'0'
+    BL debug_send
+    MOV R1, R2          ; Restore remainder
     
 less_than_100
-    MOV R2, #10
-    CMP R1, R2
+    ; Tens
+    CMP R1, #10
     BLT less_than_10
-    
-    ; Tens digit
     MOV R0, R1
-    MOV R1, #10
-    BL divide_simple
-    ADD R0, R0, #'0'
+    MOV R2, #10
+    BL simple_divide
+    MOV R2, R1          ; Save ones
+    ADD R0, #'0'
     BL debug_send
-    
-    ; Ones digit
-    MOV R0, R1          ; Remainder
-    ADD R0, R0, #'0'
+    MOV R0, R2          ; Get ones
+    ADD R0, #'0'
     BL debug_send
     B number_done
     
 less_than_10
     ; Single digit
     MOV R0, R1
-    ADD R0, R0, #'0'
+    ADD R0, #'0'
     BL debug_send
     
 number_done
     POP {R0-R2, PC}
+
+simple_divide
+    ; R0 / R2, quotient in R0, remainder in R1
+    PUSH {R3}
+    MOV R3, #0
+div_loop
+    CMP R0, R2
+    BLT div_done
+    SUB R0, R0, R2
+    ADD R3, R3, #1
+    B div_loop
+div_done
+    MOV R1, R0      ; Remainder
+    MOV R0, R3      ; Quotient
+    POP {R3}
+    BX LR
 
 print_bill_amount
     PUSH {R0-R4, LR}
@@ -578,55 +235,53 @@ print_bill_amount
     ; R0 = cents
     MOV R4, R0
     
-    ; Dollars = cents / 100
+    ; Dollars (cents / 100)
     MOV R1, #100
-    BL divide_simple    ; R0 = dollars
+    BL simple_divide    ; R0 = dollars, R1 = cents remainder
+    
+    ; Print dollars
+    PUSH {R1}
     BL print_number
+    POP {R1}
     
     ; Decimal point
     MOV R0, #'.'
     BL debug_send
     
-    ; Cents remainder
-    MOV R0, R4
-    MOV R1, #100
-    BL divide_simple    ; R0 = dollars, R1 = remainder
-    
-    ; Ensure 2 digits
+    ; Print cents (2 digits)
     MOV R0, R1
     CMP R0, #10
-    BGE two_digits_cents
+    BGE two_digits
     
-    ; Leading zero
+    ; One digit with leading zero
     MOV R0, #'0'
     BL debug_send
-    
-    ; Ones digit
     MOV R0, R1
-    ADD R0, R0, #'0'
+    ADD R0, #'0'
     BL debug_send
-    B bill_amount_done
+    B bill_done
     
-two_digits_cents
-    MOV R0, R1
+two_digits
     BL print_number
     
-bill_amount_done
+bill_done
     POP {R0-R4, PC}
 
-divide_simple
-    PUSH {R2}
-    MOV R2, #0
-divide_loop
-    CMP R0, R1
-    BLT divide_done
-    SUB R0, R0, R1
-    ADD R2, R2, #1
-    B divide_loop
-divide_done
-    MOV R1, R0          ; Remainder
-    MOV R0, R2          ; Quotient
-    POP {R2}
-    BX LR
+; ============================================
+; String Data
+; ============================================
+icu_header   DCB "ICU PATIENT SUMMARY", 0
+id_label     DCB "ID: ", 0
+name_label   DCB "Name: ", 0
+age_label    DCB "Age: ", 0
+ward_label   DCB "Ward: ", 0
+hr_label     DCB "HR: ", 0
+bp_label     DCB "BP: ", 0
+o2_label     DCB "O2: ", 0
+alerts_label DCB "Alerts: ", 0
+bill_label   DCB "Bill: $", 0
+
+    ALIGN 4
+    LTORG
 
     END
