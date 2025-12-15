@@ -20,7 +20,7 @@ PATIENT3_ADDR    EQU  0x20000040
         EXPORT PATIENT2_ADDR
         EXPORT PATIENT3_ADDR
 
-        
+
 ; Patient ID
 patient_id1        DCD 0x00001001
 patient_id2        DCD 0x00001002
@@ -300,6 +300,20 @@ TOTAL_BILL       DCD  0      ; OUTPUT
 ERROR_FLAG       DCD  0      ; OUTPUT
         EXPORT TOTAL_BILL
         EXPORT ERROR_FLAG
+
+        ; Module 11 : Anomaly Detection Thresholds
+                ; Module 11: Anomaly Detection Storage
+
+ERROR_CODE       DCD  0      ; Type of error (1-6)
+ERROR_ITEM       DCD  0      ; Which item failed
+ERROR_INFO       DCD  0      ; Additional info
+ERROR_TIMESTAMP  DCD  0      ; When error occurred
+
+
+        EXPORT ERROR_CODE
+        EXPORT ERROR_ITEM
+        EXPORT ERROR_INFO
+        EXPORT ERROR_TIMESTAMP
 
 
         END
