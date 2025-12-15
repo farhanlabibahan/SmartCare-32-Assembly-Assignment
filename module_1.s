@@ -1,11 +1,7 @@
-; ============================================================
-; MODULE 01: Patient Record Initialization
-; UPDATED VERSION - Uses data from data.s
-; ============================================================
 
         AREA    Module01, CODE, READONLY
         
-        ; Import from data file
+
         IMPORT  patient1_name
         IMPORT  patient2_name  
         IMPORT  patient3_name
@@ -32,10 +28,7 @@
         EXPORT  get_patient2
         EXPORT  get_patient3
 
-; ============================================================
-; Function: init_patients
-; Initialize all 3 patients using data from data.s
-; ============================================================
+; initialize patients
 init_patients
     PUSH    {LR}
     
@@ -45,10 +38,7 @@ init_patients
     
     POP     {PC}
 
-; ============================================================
-; Patient 1: Shahriar Samrat
-; Uses actual data from data.s
-; ============================================================
+; patient 1
 init_patient1
     PUSH    {R4-R5, LR}
     LDR     R4, =PATIENT1_ADDR
@@ -86,10 +76,7 @@ init_patient1
     
     POP     {R4-R5, PC}
 
-; ============================================================
-; Patient 2: Dipa Biswas
-; Uses actual data from data.s
-; ============================================================
+
 init_patient2
     PUSH    {R4-R5, LR}
     LDR     R4, =PATIENT2_ADDR
@@ -127,10 +114,7 @@ init_patient2
     
     POP     {R4-R5, PC}
 
-; ============================================================
-; Patient 3: Farhan Labib
-; Uses actual data from data.s
-; ============================================================
+
 init_patient3
     PUSH    {R4-R5, LR}
     LDR     R4, =PATIENT3_ADDR
@@ -168,9 +152,7 @@ init_patient3
     
     POP     {R4-R5, PC}
 
-; ============================================================
-; Get patient address functions
-; ============================================================
+; getting patiet address
 get_patient1
     LDR     R0, =PATIENT1_ADDR
     BX      LR

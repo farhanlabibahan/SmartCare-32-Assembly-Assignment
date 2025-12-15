@@ -21,8 +21,8 @@ module_five
     CMP R0, #99
     BGT invalid
     
-    ; Get cost from table: cost = table[code]
-    ; Each entry is 4 bytes
+    ; ...... cost from table: cost = table[code]
+    ; ---- -Each entry is 4 bytes
     LDR R2, [R1, R0, LSL #2]  ; R2 = table[code]
     
     ; Store cost
@@ -32,7 +32,7 @@ module_five
     B done
     
 invalid
-    ; Invalid code - set cost to 0
+    ; Invalid code - .... >>>zero
     MOV R2, #0
     LDR R3, =TREATMENT_COST
     STR R2, [R3]

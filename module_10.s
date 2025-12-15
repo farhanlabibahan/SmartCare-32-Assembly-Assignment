@@ -1,7 +1,5 @@
         AREA Module10, CODE, READONLY
         EXPORT module_ten
-        
-        ; Import only Patient 1 data
         IMPORT patient1_name
         IMPORT patient_id1
         IMPORT patient1_age
@@ -25,14 +23,10 @@ module_ten
     POP {LR, R4-R11}
     BX LR
 
-; ============================================
-; Print ICU Header
-; ============================================
+
 print_icu_header
     PUSH {LR}
-    
-    ; Print "ICU PATIENT SUMMARY"
-    LDR R0, =icu_header
+        LDR R0, =icu_header
     BL print_string
     BL print_newline
     
@@ -44,9 +38,6 @@ print_icu_header
     
     POP {PC}
 
-; ============================================
-; Print Patient 1 Summary
-; ============================================
 print_patient1_summary
     PUSH {LR}
     
@@ -129,9 +120,6 @@ print_patient1_summary
     
     POP {PC}
 
-; ============================================
-; Basic Printing Functions
-; ============================================
 
 print_string
     PUSH {R1, LR}
@@ -267,9 +255,9 @@ two_digits
 bill_done
     POP {R0-R4, PC}
 
-; ============================================
+
 ; String Data
-; ============================================
+
 icu_header   DCB "ICU PATIENT SUMMARY", 0
 id_label     DCB "ID: ", 0
 name_label   DCB "Name: ", 0

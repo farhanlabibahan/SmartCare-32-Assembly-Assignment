@@ -1,7 +1,5 @@
         AREA Module08, CODE, READONLY
         EXPORT module_eight
-        
-        ; IMPORT variables
         IMPORT TREATMENT_COST   
         IMPORT ROOM_COST    
         IMPORT MEDICINE_COST
@@ -18,11 +16,10 @@ module_eight
     POP {LR, R4-R11}       ; Restore registers
     BX LR                  ; Return to main
 
-; ============================================
-; Compute_Total_Bill
-; Calculates: total = treatment + room + medicine + labtest
-; Sets ERROR_FLAG if overflow occurs
-; ============================================
+; Compute_Total_Billll
+; TOTAL: total = treatment + room + medicine + labtest
+; Settts ERROR_FLAG if overflow occurs
+
 Compute_Total_Bill
     PUSH {R4-R7, LR}
     
@@ -53,15 +50,15 @@ Compute_Total_Bill
     
     ; Add room cost
     ADDS R5, R5, R2
-    BCS overflow           ; Check for overflow
+    BCS overflow           
     
     ; Add medicine cost
     ADDS R5, R5, R3
-    BCS overflow           ; Check for overflow
+    BCS overflow           
     
     ; Add lab test cost
     ADDS R5, R5, R4
-    BCS overflow           ; Check for overflow
+    BCS overflow           
     
     ; Store result - no overflow occurred
     LDR R0, =TOTAL_BILL
@@ -75,7 +72,7 @@ overflow
     LDR R0, =ERROR_FLAG
     STR R7, [R0]
     
-    ; Set total bill to 0 (or could set to max value)
+    ; Set total bill to 0 or max value
     MOV R5, #0
     LDR R0, =TOTAL_BILL
     STR R5, [R0]

@@ -1,7 +1,5 @@
         AREA Module07, CODE, READONLY
         EXPORT module_seven
-        
-        ; IMPORT variables from data.s
         IMPORT MED_LIST
         IMPORT NUM_MEDS
         IMPORT TOTAL_MED_COST
@@ -15,11 +13,9 @@ module_seven
     POP {LR, R4-R11}       ; Restore registers
     BX LR                  ; Return to main
 
-; ============================================
-; Compute_Medicine_Bill
-; Calculates: total_cost = Σ(price × quantity × days)
-; for each medicine in MED_LIST
-; ============================================
+;           Compute_Medicine_Bill
+;           Calculates: total_cost = Σ(price × quantity × days)
+
 Compute_Medicine_Bill
     PUSH {R4-R8, LR}
     
@@ -41,26 +37,27 @@ Compute_Medicine_Bill
     MOV R4, #0             ; R4 = i = 0 (loop counter)
 
 loop_start
-    ; Check if we've processed all medicines
+    ;           Check if i processed all medicines
     CMP R4, R1
     BGE finish
     
     ; Each medicine entry is 12 bytes (3 words × 4 bytes)
     ; Calculate offset: i * 12
+    
     MOV R5, #12
-    MUL R6, R4, R5         ; R6 = i * 12
+    MUL R6, R4, R5         ;   R6 = i * 12
     
     ; Get address of current medicine
-    ADD R6, R0, R6         ; R6 = &MED_LIST[i]
+    ADD R6, R0, R6         ;   R6 = &MED_LIST[i]
     
     ; Load medicine details
-    LDR R8, [R6]           ; R8 = unit_price
-    LDR R5, [R6, #4]       ; R5 = quantity
-    LDR R3, [R6, #8]       ; R3 = days
+    LDR R8, [R6]           ;   R8 = unit_price
+    LDR R5, [R6, #4]       ;  R5 = quantity
+    LDR R3, [R6, #8]       ;   R3 = days
     
-    ; Calculate: med_cost = price × quantity × days
-    MUL R8, R8, R5         ; R8 = price × quantity
-    MUL R8, R8, R3         ; R8 = (price × quantity) × days
+    ;           Calculate: med_cost = price × quantity × days
+    MUL R8, R8, R5         ;  R8 = price × quantity
+    MUL R8, R8, R3         ;   R8 = (price × quantity) × days
     
     ; Add to total cost
     ADD R7, R7, R8         ; total_cost += med_cost
@@ -71,6 +68,7 @@ loop_start
     B loop_start
 
 finish
+
     ; Store final total cost
     LDR R0, =TOTAL_MED_COST
     STR R7, [R0]

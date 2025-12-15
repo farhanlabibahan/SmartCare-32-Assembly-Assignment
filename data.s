@@ -132,13 +132,13 @@ o23_index    DCD 0
 
         ; MODULE 03: Alert Management
 
-; Threshold values
+        ; Threshold values
 HR_HIGH_THRESHOLD  EQU 120
 O2_LOW_THRESHOLD   EQU 92  
 SBP_HIGH_THRESHOLD EQU 160
 SBP_LOW_THRESHOLD  EQU 90
 
-; Alert flags (1 byte each) for each patient
+        ; Alert flags (1 byte each) for each patient
 hr_alert_flag1      DCB 0
 o2_alert_flag1      DCB 0
 sbp_alert_flag1     DCB 0
@@ -151,38 +151,38 @@ hr_alert_flag3      DCB 0
 o2_alert_flag3      DCB 0
 sbp_alert_flag3     DCB 0
 
-; Alert buffers for each patient (10 alerts each)
+        ; Alert buffers for each patient (10 alerts each)
 alert_buffer1       SPACE 160  ; Patient 1 alerts
 alert_buffer2       SPACE 160  ; Patient 2 alerts
 alert_buffer3       SPACE 160  ; Patient 3 alerts
 
-; Current alert indexes for each patient
+        ; Current alert indexes for each patient
 alert_index1        DCD 0
 alert_index2        DCD 0
 alert_index3        DCD 0
 
-; Timestamp counter
+        ; Timestamp counter
 timestamp_counter   DCD 0
 
 
-; Module 04: Medicine Administration Scheduler
+        ; Module 04: Medicine Administration Scheduler
 
-; Internal clock counter (hours)
+        ; Internal clock counter (hours)
 CLOCK_COUNTER   DCD     0
 
-; Medicine 1 data
+        ; Medicine 1 data
 MED1_INTERVAL   DCD     6      ; Every 6 hours
 MED1_LAST       DCD     0      ; Last administered time
 MED1_NEXT       DCD     0      ; Next due time
 MED1_FLAG       DCD     0      ; 0=not due, 1=dosage due
 
-; Medicine 2 data  
+        ; Medicine 2 data  
 MED2_INTERVAL   DCD     8      ; Every 8 hours
 MED2_LAST       DCD     0      ; Last administered time
 MED2_NEXT       DCD     0      ; Next due time
 MED2_FLAG       DCD     0      ; 0=not due, 1=dosage due
 
-; Medicine 3 data
+        ; Medicine 3 data
 MED3_INTERVAL   DCD     12     ; Every 12 hours
 MED3_LAST       DCD     0      ; Last administered time
 MED3_NEXT       DCD     0      ; Next due time
@@ -203,16 +203,13 @@ MED3_FLAG       DCD     0      ; 0=not due, 1=dosage due
         EXPORT MED3_NEXT
         EXPORT MED3_FLAG
 
-;   MODULE 09: Patient Alert Counts
+        ;   MODULE 09: Patient Alert Counts
 
-; Patient alert counts (increment when new alert created)
+        ; Patient alert counts (increment when new alert created)
 patient_alert_count1 DCD 0
 patient_alert_count2 DCD 0  
 patient_alert_count3 DCD 0
 
-        ; ============================
-        ; FIXED EXPORTS - Separate lines
-        ; ============================
         EXPORT hr_alert_flag1
         EXPORT hr_alert_flag2
         EXPORT hr_alert_flag3
@@ -237,7 +234,7 @@ patient_alert_count3 DCD 0
         EXPORT SBP_HIGH_THRESHOLD
         EXPORT SBP_LOW_THRESHOLD
 
-; Module 05: Treatment Table (100 entries, 0-99)
+        ; Module 05: Treatment Table (100 entries, 0-99)
 TREATMENT_TABLE
     DCD 100,200,300,400,500,600,700,800,900,1000
     DCD 1100,1200,1300,1400,1500,1600,1700,1800,1900,2000
@@ -278,6 +275,7 @@ MED_LIST
     DCD 10, 2, 3       ; med1: price=10, quantity=2, days=3 → 10×2×3 = 60
     DCD 50, 1, 5       ; med2: price=50, quantity=1, days=5 → 50×1×5 = 250  
     DCD 20, 3, 2       ; med3: price=20, quantity=3, days=2 → 20×3×2 = 120
+
     ; Total: 60 + 250 + 120 = 430
 
 NUM_MEDS        DCD 3   ; Number of medicines in the list
@@ -299,7 +297,7 @@ ERROR_FLAG       DCD  0      ; OUTPUT
         EXPORT TOTAL_BILL
         EXPORT ERROR_FLAG
 
-        ; Module 11 : Anomaly Detection Thresholds
+
                 ; Module 11: Anomaly Detection Storage
 
 ERROR_CODE       DCD  0      ; Type of error (1-6)

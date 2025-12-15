@@ -1,7 +1,5 @@
         AREA Module04, CODE, READONLY
         EXPORT module_four
-        
-        ; IMPORT variables (define these in data.s)
         IMPORT CLOCK_COUNTER
         IMPORT MED1_INTERVAL
         IMPORT MED1_LAST
@@ -18,11 +16,7 @@
 
 module_four
     PUSH {LR, R4-R11}
-    
-    ; Update internal clock counter
     BL update_clock
-    
-    ; Check each medicine
     BL check_medicine_1
     BL check_medicine_2
     BL check_medicine_3
@@ -30,9 +24,8 @@ module_four
     POP {LR, R4-R11}
     BX LR
 
-; ============================================
 ; Update internal clock counter
-; ============================================
+
 update_clock
     PUSH {R0-R1}
     
@@ -44,9 +37,9 @@ update_clock
     POP {R0-R1}
     BX LR
 
-; ============================================
+
 ; Check Medicine 1
-; ============================================
+
 check_medicine_1
     PUSH {LR}
     
@@ -90,9 +83,9 @@ med1_not_due
 med1_done
     POP {PC}
 
-; ============================================
-; Check Medicine 2
-; ============================================
+
+;       Check Medicine 2
+
 check_medicine_2
     PUSH {LR}
     
@@ -105,7 +98,7 @@ check_medicine_2
     LDR R2, =MED2_INTERVAL
     LDR R2, [R2]        ; Dosage interval
     
-    ; Compute next due time
+    ;       Compute next due time
     ADD R3, R1, R2      ; next_due_time = last + interval
     
     ; Store next due time
@@ -121,7 +114,7 @@ check_medicine_2
     LDR R6, =MED2_FLAG
     STR R5, [R6]
     
-    ; Update last administered time to current time
+    ;       Update last administered time to current time
     LDR R6, =MED2_LAST
     STR R0, [R6]
     
@@ -135,10 +128,7 @@ med2_not_due
     
 med2_done
     POP {PC}
-
-; ============================================
 ; Check Medicine 3
-; ============================================
 check_medicine_3
     PUSH {LR}
     

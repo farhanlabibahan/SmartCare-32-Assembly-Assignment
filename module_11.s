@@ -1,7 +1,5 @@
         AREA Module11, CODE, READONLY
         EXPORT module_eleven
-        
-        ; Import required data
         IMPORT hr1_buffer
         IMPORT hr2_buffer
         IMPORT hr3_buffer
@@ -39,30 +37,28 @@
 
 
 module_eleven
+
     PUSH {LR, R4-R11}
     
-    ; Clear any previous errors
+    ; Clear all errors
     MOV R0, #0
     LDR R1, =ERROR_FLAG
     STR R0, [R1]
     
-    ; Perform all safety checks
+    
     BL check_sensor_repetition    ; Check 1: Sensor malfunction
     BL check_medicine_zero        ; Check 2: Invalid medicine dosage  
     BL check_memory_boundaries    ; Check 3: Memory overflow
     BL check_bill_sanity          ; Check 4: Bill sanity check
     
-    ; Send completion marker
-    MOV R0, #'B'                  ; 'B' for module 11
-    BL debug_send
+   
     
     POP {LR, R4-R11}
     BX LR
 
-; ============================================
 ; CHECK 1: Sensor Malfunction Detection
 ; Check if same sensor value repeats > 10 times
-; ============================================
+
 check_sensor_repetition
     PUSH {LR}
     
@@ -127,8 +123,9 @@ check_sensor_repetition
     
     POP {PC}
 
-; Check single sensor buffer for repetition
 ; R0 = buffer address, R1 = index address, R2 = sensor type, R3 = patient
+
+
 check_single_sensor
     PUSH {R4-R9, LR}
     
@@ -137,7 +134,7 @@ check_single_sensor
     MOV R6, R2          ; Sensor type
     MOV R7, R3          ; Patient number
     
-    ; Get current index
+    ;           Get current index
     LDR R8, [R5]        ; R8 = current index
     
     ; Need at least 10 readings to check
@@ -145,7 +142,9 @@ check_single_sensor
     BLT sensor_check_done
     
     ; Check last 10 readings
+    ;..........
     ; Get the last value
+
     SUB R0, R8, #1      ; Last index
     BL wrap_index       ; Handle wrap-around
     BL get_buffer_value ; R0 = last value
@@ -153,6 +152,8 @@ check_single_sensor
     MOV R9, R0          ; R9 = reference value
     
     ; Now check if all last 10 readings are the same
+
+
     MOV R1, #1          ; Start checking from 1 reading ago
     MOV R2, #0          ; Match count (starts with last reading)
     
@@ -170,21 +171,20 @@ check_repetition_loop
     BL get_buffer_value
     POP {R1-R2}
     
-    ; Compare with reference
+    ; CCCCCompare with reference
     CMP R0, R9
     BNE repetition_check_done  ; Different value found
     
-    ; Same value, continue checking
+    ; Saaaame value, continue checking
     ADD R1, R1, #1
     ADD R2, R2, #1
     B check_repetition_loop
 
 repetition_check_done
-    ; If we found 10 identical readings (R2 = 9 means 10 total including reference)
+    ;        If we found 10 identical readings (R2 = 9 means 10 total including reference)
     CMP R2, #9
     BLT sensor_check_done
     
-    ; Sensor malfunction detected!
     MOV R0, #1          ; Error code 1 = sensor malfunction
     MOV R1, R6          ; Sensor type
     MOV R2, R7          ; Patient number
@@ -196,31 +196,33 @@ sensor_check_done
 ; Get value from circular buffer (0-9 index)
 ; R0 = index, R4 = buffer base
 ; Returns: R0 = value
+
 get_buffer_value
     LDR R0, [R4, R0, LSL #2]  ; buffer[index * 4]
     BX LR
 
 ; Wrap index around 0-9
 ; R0 = index, returns wrapped index
+
 wrap_index
     CMP R0, #0
     BGE wrap_check_high
-    ADD R0, R0, #10     ; Add 10 if negative
-    B wrap_index        ; Re-check
+    ADD R0, R0, #10     ;   Add 10 if negative
+    B wrap_index        ;   Re-check
     
 wrap_check_high
     CMP R0, #9
     BLE wrap_done
-    SUB R0, R0, #10     ; Subtract 10 if > 9
-    B wrap_index        ; Re-check
+    SUB R0, R0, #10     ;   Subtract 10 if > 9
+    B wrap_index        ;   Re-check
     
 wrap_done
     BX LR
 
-; ============================================
 ; CHECK 2: Invalid Medicine Dosage
 ; Check for zero or negative interval values
-; ============================================
+
+
 check_medicine_zero
     PUSH {LR}
     
@@ -267,10 +269,8 @@ medicine3_error
 medicine_check_done
     POP {PC}
 
-; ============================================
 ; CHECK 3: Memory Boundaries
 ; Check if critical data is within valid RAM range
-; ============================================
 check_memory_boundaries
     PUSH {LR}
     
@@ -302,8 +302,9 @@ check_memory_boundaries
     
     POP {PC}
 
-; Check if address is within bounds
+;       ------ Check if address is within bounds
 ; R0 = address to check, R4 = lower bound, R5 = upper bound
+
 check_address
     CMP R0, R4
     BLT address_error
@@ -314,16 +315,15 @@ check_address
     BX LR
 
 address_error
-    MOV R0, #3          ; Error code 3 = memory boundary error
+    MOV R0, #3          
     MOV R1, #0          ; Not applicable
     MOV R2, R0          ; Save the failing address
     BL record_error
     BX LR
 
-; ============================================
 ; CHECK 4: Bill Sanity Check
 ; Ensure bill amount is reasonable
-; ============================================
+
 check_bill_sanity
     PUSH {LR}
     
@@ -331,17 +331,18 @@ check_bill_sanity
     LDR R0, [R0]
     
     ; Check 1: Bill should not be negative
+
     CMP R0, #0
     BLT bill_negative_error
     
     ; Check 2: Bill should not exceed $1,000,000 (100,000,000 cents)
-    ; This is an unreasonably large hospital bill
+
     LDR R1, =100000000
     CMP R0, R1
     BGT bill_too_large_error
     
     ; Check 3: Bill should be divisible by 1 cent (always true for integers)
-    ; But check for extremely large values that might indicate overflow
+
     LDR R1, =0x7FFFFFFF  ; Max positive 32-bit
     CMP R0, R1
     BGT bill_overflow_error
@@ -371,11 +372,11 @@ bill_overflow_error
 bill_check_done
     POP {PC}
 
-; ============================================
+
 ; Record Error Function
 ; R0 = error code, R1 = item, R2 = additional info
-; Sets ERROR_FLAG and stores error record
-; ============================================
+
+
 record_error
     PUSH {R3-R5, LR}
     
@@ -388,8 +389,6 @@ record_error
     LDR R4, =timestamp_counter
     LDR R5, [R4]        ; R5 = timestamp
     
-    ; In a real system, you would write to Flash here
-    ; For now, just send debug output
     
     ; Send error information via debug
     MOV R3, R0          ; Save error code
@@ -423,9 +422,8 @@ record_error
     
     POP {R3-R5, PC}
 
-; ============================================
+
 ; Utility: Print Number (0-999)
-; ============================================
 print_number
     PUSH {R0-R2, LR}
     

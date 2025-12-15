@@ -1,7 +1,7 @@
         AREA Module02, CODE, READONLY
         EXPORT module_two
         
-        ; IMPORT actual data variables
+     
         IMPORT HR1_data
         IMPORT BP1_data
         IMPORT O21_data
@@ -31,12 +31,12 @@
         IMPORT o23_buffer
 
 module_two
-    PUSH {LR, R4-R11}    ; Save registers
+    PUSH {LR, R4-R11}    
     
-    ; Reset all indexes to 0
+    ;       Reset all 
     MOV R0, #0
     
-    ; Reset HR indexes
+        ; Reset HR indexes
     LDR R1, =hr1_index
     STR R0, [R1]
     LDR R1, =hr2_index
@@ -44,7 +44,7 @@ module_two
     LDR R1, =hr3_index
     STR R0, [R1]
     
-    ; Reset BP indexes
+        ; Reset BP indexes
     LDR R1, =bp1_index
     STR R0, [R1]
     LDR R1, =bp2_index
@@ -52,7 +52,7 @@ module_two
     LDR R1, =bp3_index
     STR R0, [R1]
     
-    ; Reset O2 indexes
+        ; Reset O2 indexes
     LDR R1, =o21_index
     STR R0, [R1]
     LDR R1, =o22_index
@@ -63,8 +63,8 @@ module_two
     ; Read all patients
     BL read_all_patients
     
-    POP {LR, R4-R11}     ; Restore registers
-    BX LR                ; Return
+    POP {LR, R4-R11}     ; Restore 
+    BX LR                
 
 
 ; Read all patients
@@ -167,8 +167,7 @@ read_patient3
     POP {PC}
 
 
-; Helper function: Store one reading in a buffer
-; Input: R1 = reading value, R2 = buffer address, R3 = index address
+; store reading
 store_reading
     PUSH {R4}
     
