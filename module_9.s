@@ -35,7 +35,7 @@ outer_loop
     ; Setup for inner loop
     MOV R0, #0           ; i = 0
     MOV R1, R12          ; j = n-1
-    SUBS R1, R1, R0      ; j-i
+    SUBS R1, R1, R0      ; j=j-i (n-i-1)
     
 inner_loop
 
